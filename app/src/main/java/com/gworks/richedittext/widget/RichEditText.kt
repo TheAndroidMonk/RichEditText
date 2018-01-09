@@ -46,4 +46,8 @@ class RichEditText : AppCompatEditText {
     fun onMarkupClicked(id: Class<out Markup>, value: Any?) {
         manager.onMarkupMenuClicked(id, value)
     }
+
+    fun getHtml(): String {
+        return manager.getHtml(null)
+    }
 }

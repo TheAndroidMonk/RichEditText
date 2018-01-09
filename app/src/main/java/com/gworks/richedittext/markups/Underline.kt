@@ -20,8 +20,8 @@ import android.text.style.UnderlineSpan
 
 class Underline : StyleMarkup(UnderlineSpan()) {
 
-    override fun convert(sb: StringBuilder, converter: MarkupConverter, begin: Boolean) {
-        converter.convertMarkup(sb, this@Underline, begin)
+    override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
+        converter.convertMarkup(sb, offset, this, begin)
     }
 
 }

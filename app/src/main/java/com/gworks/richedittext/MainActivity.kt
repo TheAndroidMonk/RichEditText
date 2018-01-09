@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.gworks.richedittext.markups.Bold
 import com.gworks.richedittext.markups.Italic
 import com.gworks.richedittext.markups.Markup
@@ -40,10 +41,14 @@ class MainActivity : AppCompatActivity() {
         val layout = findViewById<LinearLayout>(R.id.buttonLayout)
         layout.addView(newMarkupButton("Bold", Bold::class.java))
         layout.addView(newMarkupButton("Italics", Italic::class.java))
+
+        val textView = findViewById<TextView>(R.id.textView)
+
+        val button = findViewById<Button>(R.id.button)
+        button.setOnClickListener({textView.text = editText.getHtml()})
     }
 
     private fun newMarkupButton(label: String, mId: Class<out Markup>): Button {
-
         val b = Button(this)
         b.text = label
         b.tag = mId

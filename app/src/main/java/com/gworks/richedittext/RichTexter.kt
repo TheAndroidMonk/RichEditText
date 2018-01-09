@@ -109,28 +109,27 @@ open class RichTexter(// The text view which acts as rich text view.
             val html = StringBuilder(text.length)
             val htmlConverter = HtmlConverter(unknownMarkupHandler)
             val spans = text.getSpans(0, text.length, Markup::class.java).toMutableList()
-            var processed = 0
+            var processed = -1
 
             while (processed < text.length) {
 
                 // Get the next span transition.
-                val transitionIndex = text.nextSpanTransition(processed, text.length, null)
+                val transitionIndex = text.nextSpanTransition(processed, text.length, Markup::class.java)
 
                 // If there are unprocessed text before transition add.
                 if (transitionIndex > processed)
-                    html.append(text, processed, transitionIndex)
+                    html.append(text, kotlin.math.max(processed, 0), transitionIndex)
 
+                val oldLen = html.length
                 val iterator = spans.iterator()
                 for (span in iterator) {
 
                     val start = text.getSpanStart(span)
                     if (start == transitionIndex)
-                        span.convert(html, htmlConverter, true)
-                    else if (start > transitionIndex)
-                        break
+                        span.convert(html, html.length, htmlConverter, true)
 
                     if (text.getSpanEnd(span) == transitionIndex) {
-                        span.convert(html, htmlConverter, false)
+                        span.convert(html, if (start == transitionIndex) html.length else oldLen, htmlConverter, false)
                         iterator.remove()
                     }
                 }

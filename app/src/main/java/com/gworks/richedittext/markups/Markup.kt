@@ -55,7 +55,7 @@ interface Markup {
      * @param converter
      * @param begin
      */
-    fun convert(sb: StringBuilder, converter: MarkupConverter, begin: Boolean)
+    fun convert(sb: StringBuilder, offset: Int = sb.length, converter: MarkupConverter, begin: Boolean)
 
     /**
      * Tells whether this markup can exist with the given markup type.

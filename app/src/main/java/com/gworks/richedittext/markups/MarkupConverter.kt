@@ -20,31 +20,31 @@ interface MarkupConverter {
 
     val unknownMarkupHandler: UnknownMarkupHandler?
 
-    fun convertMarkup(sb: StringBuilder, boldMarkup: Bold, begin: Boolean): Boolean {
+    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, boldMarkup: Bold, begin: Boolean): Boolean {
         return false
     }
 
-    fun convertMarkup(sb: StringBuilder, italicMarkup: Italic, begin: Boolean): Boolean {
+    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, italicMarkup: Italic, begin: Boolean): Boolean {
         return false
     }
 
-    fun convertMarkup(sb: StringBuilder, underlineMarkup: Underline, begin: Boolean): Boolean {
+    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, underlineMarkup: Underline, begin: Boolean): Boolean {
         return false
     }
 
-    fun convertMarkup(sb: StringBuilder, fontMarkup: Font, begin: Boolean): Boolean {
+    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, fontMarkup: Font, begin: Boolean): Boolean {
         return false
     }
 
-    fun convertMarkup(sb: StringBuilder, linkMarkup: Link, begin: Boolean): Boolean {
+    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, linkMarkup: Link, begin: Boolean): Boolean {
         return false
     }
 
-    fun convertMarkup(sb: StringBuilder, markup: Markup, begin: Boolean): Boolean {
-        return unknownMarkupHandler?.handleMarkup(sb, markup, begin) ?: false
+    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, markup: Markup, begin: Boolean): Boolean {
+        return unknownMarkupHandler?.handleMarkup(sb, offset, markup, begin) ?: false
     }
 
     interface UnknownMarkupHandler {
-        fun handleMarkup(sb: StringBuilder, markup: Markup, begin: Boolean): Boolean
+        fun handleMarkup(sb: StringBuilder, offset: Int = sb.length, markup: Markup, begin: Boolean): Boolean
     }
 }

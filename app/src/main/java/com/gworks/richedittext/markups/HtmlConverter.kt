@@ -18,33 +18,25 @@ package com.gworks.richedittext.markups
 
 class HtmlConverter(_unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?) : MarkupConverter {
 
-    override val unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?
+    override val unknownMarkupHandler = _unknownMarkupHandler
 
-    init {
-        unknownMarkupHandler = _unknownMarkupHandler;
-    }
-
-    override fun convertMarkup(sb: StringBuilder, boldMarkup: Bold, begin: Boolean): Boolean {
-        sb.append(makeTag(BOLD, begin))
+    override fun convertMarkup(sb: StringBuilder, offset: Int, boldMarkup: Bold, begin: Boolean): Boolean {
+        sb.insert(offset, makeTag(BOLD, begin))
         return true
     }
 
-    override fun convertMarkup(sb: StringBuilder, italicMarkup: Italic, begin: Boolean): Boolean {
-        sb.append(makeTag(ITALIC, begin))
+    override fun convertMarkup(sb: StringBuilder, offset: Int, italicMarkup: Italic, begin: Boolean): Boolean {
+        sb.insert(offset, makeTag(ITALIC, begin))
         return true
     }
 
-    override fun convertMarkup(sb: StringBuilder, underlineMarkup: Underline, begin: Boolean): Boolean {
-        sb.append(makeTag(UNDERLINE, begin))
+    override fun convertMarkup(sb: StringBuilder, offset: Int, underlineMarkup: Underline, begin: Boolean): Boolean {
+        sb.insert(offset, makeTag(UNDERLINE, begin))
         return true
     }
 
-    override fun convertMarkup(sb: StringBuilder, linkMarkup: Link, begin: Boolean): Boolean {
-        sb.append(if (begin) LT else _LT)
-        sb.append(LINK)
-        if (begin)
-            sb.append(" " + ATTR_URL + "=" + linkMarkup.attributes)
-        sb.append(GT)
+    override fun convertMarkup(sb: StringBuilder, offset: Int, linkMarkup: Link, begin: Boolean): Boolean {
+        sb.insert(offset, makeTag(LINK, begin,ATTR_URL + "=" + linkMarkup.attributes))
         return true
     }
 
@@ -67,8 +59,8 @@ class HtmlConverter(_unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?
         val GT = ">"
         val _GT = "/>"
 
-        private fun makeTag(name: String, begin: Boolean): String {
-            return (if (begin) LT else _LT) + name + GT
+        private fun makeTag(name: String, begin: Boolean, attrs: String = ""): String {
+            return (if (begin) LT else _LT) + name + (if (begin && attrs.isNotEmpty()) (" " + attrs) else "") + GT
         }
     }
 }

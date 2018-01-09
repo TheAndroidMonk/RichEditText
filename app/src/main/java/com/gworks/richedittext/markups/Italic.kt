@@ -21,8 +21,8 @@ import android.text.style.StyleSpan
 
 class Italic : StyleMarkup(StyleSpan(Typeface.ITALIC)) {
 
-    override fun convert(sb: StringBuilder, converter: MarkupConverter, begin: Boolean) {
-        converter.convertMarkup(sb, this@Italic, begin)
+    override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
+        converter.convertMarkup(sb, offset, this, begin)
     }
 
 }

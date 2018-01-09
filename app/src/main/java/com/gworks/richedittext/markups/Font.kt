@@ -36,8 +36,8 @@ class Font(attributes: Attributes) : BaseAttributedMarkup<Font.Attributes>(attri
         colorSpan = ForegroundColorSpan(attributes.color)
     }
 
-    override fun convert(sb: StringBuilder, converter: MarkupConverter, begin: Boolean) {
-        converter.convertMarkup(sb, this, begin)
+    override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
+        converter.convertMarkup(sb, offset, this, begin)
     }
 
     override fun apply(text: Spannable, from: Int, to: Int, flags: Int) {
