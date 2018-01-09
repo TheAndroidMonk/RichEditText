@@ -16,7 +16,7 @@
 
 package com.gworks.richedittext.markups
 
-class HtmlConverter(_unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler) : MarkupConverter {
+class HtmlConverter(_unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?) : MarkupConverter {
 
     override val unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?
 

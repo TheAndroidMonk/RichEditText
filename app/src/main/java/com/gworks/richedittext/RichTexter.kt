@@ -17,7 +17,6 @@
 package com.gworks.richedittext
 
 import android.text.Spanned
-import android.util.SparseArray
 import android.widget.TextView
 import com.gworks.richedittext.markups.HtmlConverter
 import com.gworks.richedittext.markups.Markup
@@ -26,21 +25,6 @@ import java.util.*
 
 open class RichTexter(// The text view which acts as rich text view.
         open val richTextView: TextView) {
-
-    // Mapping between the index and its span transitions in the text.
-    private val spanTransitions =  SparseArray<SpanTransition>()
-
-    /**
-     * Returns the rich text in the text view as plain text (i.e. String).
-     */
-    val plainText: String
-        get() = richTextView.text.toString()
-
-    /**
-     * Returns the html equivalent of the rich text in the text view.
-     */
-    val html: String
-        get() = getHtml(null)
 
     fun isApplied(markupClass: Class<Markup>): Boolean {
         return isAppliedInRange(markupClass, 0, richTextView.length())
@@ -107,126 +91,57 @@ open class RichTexter(// The text view which acts as rich text view.
     }
 
     /**
-     * Returns the markups starting at the given index.
-     *
-     * @param index start index
-     * @return unmodifiable list of markups
+     * Returns the rich text in the text view as plain text (i.e. String).
      */
-    fun getSpansStartingAt(index: Int): List<Markup> {
-        val spans = spansStartingAt(index)
-        return if (spans == null) emptyList() else Collections.unmodifiableList(spans)
+    fun getPlainText() : String {
+        return richTextView.text.toString()
     }
 
-    /**
-     * Returns the markups ending at the given index.
-     *
-     * @param index end index
-     * @return unmodifiable list of markups
-     */
-    fun getSpansEndingAt(index: Int): List<Markup> {
-        val spans = spansEndingAt(index)
-        return if (spans == null) emptyList() else Collections.unmodifiableList(spans)
+    fun getHtml(unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler? = null): String {
+        return if (richTextView.text !is Spanned) getPlainText()
+        else toHtml(richTextView.text as Spanned, unknownMarkupHandler)
     }
 
-    private fun spansStartingAt(index: Int): List<Markup>? {
-        return spanTransitions.get(index)?.startingSpans
-    }
+    companion object {
 
-    private fun spansEndingAt(index: Int): List<Markup>? {
-        return spanTransitions.get(index)?.endingSpans
-    }
+        fun toHtml(text: Spanned, unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler? = null): String {
 
-    /**
-     * Returns the html equivalent of the rich text in the text view.
-     *
-     * @param unknownMarkupHandler the handler to handle the unknown markups.
-     */
-    private fun getHtml(unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?): String {
+            val html = StringBuilder(text.length)
+            val htmlConverter = HtmlConverter(unknownMarkupHandler)
+            val spans = text.getSpans(0, text.length, Markup::class.java).toMutableList()
+            var processed = 0
 
-        val text = richTextView.text
-        if (text !is Spanned)
-            return text.toString()
+            while (processed < text.length) {
 
-        val html = StringBuilder(text.length)
-        val htmlConverter = HtmlConverter(unknownMarkupHandler!!)
-        val openSpans = LinkedList<Markup>()
+                // Get the next span transition.
+                val transitionIndex = text.nextSpanTransition(processed, text.length, null)
 
-        var processed = 0
-        val end = text.length
-        while (processed < end) {
+                // If there are unprocessed text before transition add.
+                if (transitionIndex > processed)
+                    html.append(text, processed, transitionIndex)
 
-            // Get the next span transition.
-            val transitionIndex = text.nextSpanTransition(processed, end, null)
-            if (transitionIndex > processed)
-                html.append(text.subSequence(processed, transitionIndex))
+                val iterator = spans.iterator()
+                for (span in iterator) {
 
-            val startingSpans = spansStartingAt(transitionIndex)
-            if (startingSpans != null) {
-                for (startingSpan in startingSpans) {
-                    startingSpan.convert(html, htmlConverter, true)
-                    // Consider the starting span as an opening span.
-                    openSpans.add(startingSpan)
-                }
-            }
+                    val start = text.getSpanStart(span)
+                    if (start == transitionIndex)
+                        span.convert(html, htmlConverter, true)
+                    else if (start > transitionIndex)
+                        break
 
-            // Iterate all ending spans at the transition index.
-            val endingSpans = spansEndingAt(transitionIndex)
-            if (endingSpans != null) {
-                for (endingSpan in endingSpans) {
-                    val iterator = openSpans.listIterator(openSpans.size)
-                    while (iterator.hasPrevious()) {
-                        val openSpan = iterator.previous()
-                        // If an ending span has a matching open span, consider it as a closing
-                        // span and remove the open span, and proceed to next ending span.
-                        if (openSpan === endingSpan) {
-                            iterator.remove()
-                            endingSpan.convert(html, htmlConverter, false)
-                            break
-                        }
+                    if (text.getSpanEnd(span) == transitionIndex) {
+                        span.convert(html, htmlConverter, false)
+                        iterator.remove()
                     }
                 }
+
+                // The text and spans up to transitionIndex is processed.
+                processed = transitionIndex
             }
 
-            processed = transitionIndex
+            return html.toString()
         }
-        return if (openSpans.isEmpty())
-            html.toString()
-        else
-            throw IllegalStateException("Spans are not well formed")//TODO Will we really reach this?
-    }
 
-    internal fun removeFromSpanTransitions(markup: Markup, from: Int, to: Int) {
-        spanTransitions.get(from)?.startingSpans?.remove(markup)
-        spanTransitions.get(to)?.endingSpans?.remove(markup)
-    }
-
-    internal fun addToSpanTransitions(markup: Markup, from: Int, to: Int) {
-
-        var transitionFrom = spanTransitions.get(from)
-        if (transitionFrom == null) {
-            transitionFrom = SpanTransition()
-            spanTransitions.put(from, transitionFrom)
-        }
-        transitionFrom.startingSpans.add(markup)
-
-        var transitionTo = spanTransitions.get(to)
-        if (transitionTo == null) {
-            transitionTo = SpanTransition();
-            spanTransitions.put(to, transitionTo)
-        }
-        transitionTo.endingSpans.add(markup)
-    }
-
-    /**
-     * Class representing a span transition in the text at a given index.
-     */
-    internal class SpanTransition {
-
-        //spans starting at this span transition.
-        val startingSpans = LinkedList<Markup>()
-
-        //spans ending at this span transition.
-        val endingSpans = LinkedList<Markup>()
     }
 
 }

@@ -19,10 +19,7 @@ package com.gworks.richedittext.markups
 import android.graphics.Typeface
 import android.text.style.StyleSpan
 
-class Italic : StyleMarkup {
-
-    override val span: Any
-        get() = StyleSpan(Typeface.ITALIC)
+class Italic : StyleMarkup(StyleSpan(Typeface.ITALIC)) {
 
     override fun convert(sb: StringBuilder, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, this@Italic, begin)

@@ -18,9 +18,7 @@ package com.gworks.richedittext.markups
 
 import android.text.Spannable
 
-interface StyleMarkup : Markup {
-
-    val span: Any
+abstract class StyleMarkup(val span:Any) : Markup {
 
     override val isSplittable: Boolean
         get() = true

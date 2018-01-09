@@ -18,10 +18,7 @@ package com.gworks.richedittext.markups
 
 import android.text.style.UnderlineSpan
 
-interface Underline : StyleMarkup {
-
-    override val span: Any
-        get() = UnderlineSpan()
+class Underline : StyleMarkup(UnderlineSpan()) {
 
     override fun convert(sb: StringBuilder, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, this@Underline, begin)

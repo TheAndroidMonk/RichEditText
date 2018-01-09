@@ -89,7 +89,7 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
     private fun applyInternal(markup: Markup, from: Int, to: Int) {
         markup.applyInternal(richTextView.text, from, to,
                 if (from == to) Spannable.SPAN_MARK_MARK else Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        addToSpanTransitions(markup, from, to)
+//        addToSpanTransitions(markup, from, to)
     }
 
     fun remove(markupType: Class<out Markup>) {
@@ -134,7 +134,7 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
             if (start >= 0) {
 
                 //First remove from the old range and reapply if splittable.
-                removeFromSpanTransitions(markup, start, end)
+//                removeFromSpanTransitions(markup, start, end)
                 markup.removeInternal(text)
 
                 //If the markup is splittable apply in the outer region.

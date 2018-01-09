@@ -19,10 +19,7 @@ package com.gworks.richedittext.markups
 import android.graphics.Typeface
 import android.text.style.StyleSpan
 
-class Bold : StyleMarkup {
-
-    override val span: Any
-        get() = StyleSpan(Typeface.BOLD)
+class Bold : StyleMarkup(StyleSpan(Typeface.BOLD)) {
 
     override fun convert(sb: StringBuilder, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, this, begin)
