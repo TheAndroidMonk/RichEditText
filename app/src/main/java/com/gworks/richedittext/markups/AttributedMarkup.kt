@@ -22,12 +22,11 @@ package com.gworks.richedittext.markups
  * Often set of params are wrapped in a single class and used as generic param `ATTR`
  * while implementing this interface and single param need not be wrapped.
  * @param <ATTR>
-</ATTR> */
+*/
 interface AttributedMarkup<ATTR> : Markup {
 
     /**
-     * Returns the attributes of this [AttributedMarkup].
-     * @return
+     * The attributes of this [AttributedMarkup].
      */
     val attributes: ATTR
 

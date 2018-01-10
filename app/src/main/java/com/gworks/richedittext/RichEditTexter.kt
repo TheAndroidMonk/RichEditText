@@ -17,27 +17,39 @@
 package com.gworks.richedittext
 
 import android.text.Editable
-import android.text.Spannable
 import android.text.Spanned
 import android.text.TextWatcher
 import android.widget.EditText
 import com.gworks.richedittext.markups.AttributedMarkup
 import com.gworks.richedittext.markups.Markup
 
-class RichEditTexter(editText: EditText) : RichTexter(editText) {
+class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextView) {
 
     private val textWatcher = object : TextWatcher {
-        private var markupMarks: List<Markup>? = null
-        private var replacedLength: Int = 0
+
+        private val NONE = -1
+        private val INSERT = 0
+        private val REPLACE = 1
+        private val DELETE = 2
+
+        private var operation = NONE
+        private var start = -1
+        private var before = -1
+        private var after = -1
 
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
 
-            //TODO need to remove the spans in text to be removed
+            if (operation != NONE) return
 
-            if (count == 0) {
-                //Only 0 -length markups need to be replaced
-                markupMarks = getAppliedMarkupsInRange(start, start + count)
-                replacedLength = after
+            this.start = start
+            this.before = count
+            this.after = after
+
+            operation = when {
+                count == 0 && after == 0 -> NONE
+                count == 0 -> INSERT
+                after == 0 -> DELETE
+                else -> REPLACE
             }
         }
 
@@ -46,26 +58,45 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
         }
 
         override fun afterTextChanged(s: Editable) {
-            if (markupMarks != null) {
-                for (markup in markupMarks!!) {
-                    val spanStart = markup.getSpanStart(s)
-                    s.removeSpan(markup)
-                    s.setSpan(markup, spanStart, replacedLength, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
-                markupMarks = null
+
+            if (operation == INSERT || operation == REPLACE) {
+
+                val spans = getAppliedMarkupsInRange(start, start)
+                spans.forEach({
+                    if (s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
+                        it.removeInternal(s)
+                        it.applyInternal(s, start, start + after, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    }
+                })
+
+                // Mark the operation as completed; along with the first stmt of
+                // beforeTextChanged() this prevents the infinite loop.
+                operation = NONE
             }
         }
     }
 
-    override val richTextView: EditText
-        get() = super.richTextView as EditText
-
     init {
-        editText.addTextChangedListener(textWatcher)
+        richTextView.addTextChangedListener(textWatcher)
     }
 
-    fun apply(markupType: Class<out Markup>, value: Any?) {
-        apply(createMarkup(markupType, value))
+    fun applyInSelection(markupType: Class<out Markup>, value: Any?) {
+        applyInRange(createMarkup(markupType, value), richTextView.selectionStart, richTextView.selectionEnd)
+    }
+
+    fun applyInRange(markupType: Class<out Markup>, value: Any?, from: Int, to: Int) {
+        applyInRange(createMarkup(markupType, value), from, to)
+    }
+
+    /**
+     * Applies the given markup in the current selection.
+     *
+     * @param markup markup to apply
+     * @param from inclusive
+     * @param to exclusive
+     */
+    fun applyInSelection(markup: Markup) {
+        applyInRange(markup, richTextView.selectionStart, richTextView.selectionEnd)
     }
 
     /**
@@ -75,21 +106,9 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
      * @param from inclusive
      * @param to exclusive
      */
-    fun apply(markup: Markup, from: Int = richTextView.selectionStart, to: Int = richTextView.selectionEnd) {
-        applyInternal(markup, from, to)
-    }
-
-    /**
-     * Applies the given markup in the given range.
-     *
-     * @param markup markup to apply
-     * @param from inclusive
-     * @param to exclusive
-     */
-    private fun applyInternal(markup: Markup, from: Int, to: Int) {
-        markup.applyInternal(richTextView.text, from, to,
-                if (from == to) Spannable.SPAN_MARK_MARK else Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-//        addToSpanTransitions(markup, from, to)
+    fun applyInRange(markup: Markup, from: Int, to: Int,
+                     flags: Int = if (from == to) Spanned.SPAN_MARK_MARK else Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
+        markup.applyInternal(richTextView.text, from, to, flags)
     }
 
     fun remove(markupType: Class<out Markup>) {
@@ -97,10 +116,10 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
     }
 
     fun remove(markupType: Class<out Markup>, from: Int, to: Int) {
-        getAppliedMarkupsInRange(from, to).forEach({
+        getAppliedMarkupsInRange(from, to).forEach {
             if (it.javaClass == markupType)
                 removeInternal(it, from, to)
-        })
+        }
     }
 
     /**
@@ -125,6 +144,7 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
      * @param to exclusive
      */
     private fun removeInternal(markup: Markup?, from: Int, to: Int) {
+
         if (markup != null) {
             val text = richTextView.text
             val start = markup.getSpanStart(text)
@@ -133,23 +153,32 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
             // If the markup is really applied in the text.
             if (start >= 0) {
 
-                //First remove from the old range and reapply if splittable.
-//                removeFromSpanTransitions(markup, start, end)
+                // Capture the flag before removing to "toggle" if necessary.
+                val oldFlag = text.getSpanFlags(markup)
+
+                // First remove and reapply if splittable.
                 markup.removeInternal(text)
 
-                //If the markup is splittable apply in the outer region.
+                // If the markup is splittable apply in the outer region.
                 if (markup.isSplittable) {
+
                     var reused = false
                     if (start < from) {
-                        //The removed markup is reused here.
-                        applyInternal(markup, start, from)
+
+                        // If the selection is zero then "toggle" the flags.
+                        val flag = if (from < to || oldFlag == Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE else Spanned.SPAN_EXCLUSIVE_INCLUSIVE
+                        // The removed markup is reused here.
+                        applyInRange(markup, start, from, flag)
                         reused = true
                     }
-                    if (end > to) {
-                        val value = (markup as? AttributedMarkup<*>)?.attributes
-                        //If not reused above reuse here.
-                        applyInternal(if (reused) createMarkup(markup.javaClass, value) else markup, to, end)
-                    }
+                    if (end > to)
+                    // If not reused above reuse here.
+                        applyInRange(
+                                if (reused) createMarkup(markup.javaClass, (markup as? AttributedMarkup<*>)?.attributes)
+                                else markup,
+                                to, end
+                        )
                 }
             }
         }
@@ -157,7 +186,7 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
 
     fun update(markupType: Class<out Markup>, value: Any?) {
         remove(markupType)
-        apply(markupType, value)
+        applyInSelection(markupType, value)
     }
 
     /**
@@ -171,6 +200,7 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
         val start = richTextView.selectionStart
         val end = richTextView.selectionEnd
         var toggled = false
+
         for (existing in getAppliedMarkupsInRange(start, end)) {
             if (!existing.canExistWith(markupType)) {
                 removeInternal(existing, start, end)
@@ -181,7 +211,7 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
         }
         // Attributed markups are updated (reapplied) hence always check them.
         if (AttributedMarkup::class.javaObjectType.isAssignableFrom(markupType) || !toggled)
-            apply(markupType, value)
+            applyInRange(markupType, value, start, end)
     }
 
     private fun createMarkup(markupType: Class<out Markup>, value: Any?): Markup {
@@ -195,11 +225,6 @@ class RichEditTexter(editText: EditText) : RichTexter(editText) {
             e.printStackTrace()
             throw e
         }
-    }
-
-    companion object {
-
-        private val TAG = "@RichEditTexter"
     }
 
 }

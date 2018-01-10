@@ -16,51 +16,56 @@
 
 package com.gworks.richedittext.markups
 
-class HtmlConverter(_unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?) : MarkupConverter {
-
-    override val unknownMarkupHandler = _unknownMarkupHandler
+class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?) : MarkupConverter {
 
     override fun convertMarkup(sb: StringBuilder, offset: Int, boldMarkup: Bold, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(BOLD, begin))
+        sb.insert(offset, makeTag(name = BOLD, begin = begin))
         return true
     }
 
     override fun convertMarkup(sb: StringBuilder, offset: Int, italicMarkup: Italic, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(ITALIC, begin))
+        sb.insert(offset, makeTag(name = ITALIC, begin = begin))
         return true
     }
 
     override fun convertMarkup(sb: StringBuilder, offset: Int, underlineMarkup: Underline, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(UNDERLINE, begin))
+        sb.insert(offset, makeTag(name = UNDERLINE, begin = begin))
         return true
     }
 
     override fun convertMarkup(sb: StringBuilder, offset: Int, linkMarkup: Link, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(LINK, begin,ATTR_URL + "=" + linkMarkup.attributes))
+        sb.insert(offset, makeTag(name = LINK, begin = begin, attrs = ATTR_URL + "=" + linkMarkup.attributes))
         return true
     }
 
     companion object {
 
-        val BOLD = "b"
-        val ITALIC = "i"
-        val UNDERLINE = "u"
-        val LINK = "a"
-        val H1 = "h1"
-        val H2 = "h2"
-        val H3 = "h3"
-        val H4 = "h4"
+        private val BOLD = "b"
+        private val ITALIC = "i"
+        private val UNDERLINE = "u"
+        private val LINK = "a"
+        private val H1 = "h1"
+        private val H2 = "h2"
+        private val H3 = "h3"
+        private val H4 = "h4"
 
-        val ATTR_URL = "href"
-        val ATTR_SRC = "src"
+        private val ATTR_URL = "href"
+        private val ATTR_SRC = "src"
 
-        val LT = "<"
-        val _LT = "</"
-        val GT = ">"
-        val _GT = "/>"
+        private val LT = "<"
+        private val _LT = "</"
+        private val GT = ">"
+        private val _GT = "/>"
 
-        private fun makeTag(name: String, begin: Boolean, attrs: String = ""): String {
-            return (if (begin) LT else _LT) + name + (if (begin && attrs.isNotEmpty()) (" " + attrs) else "") + GT
+        private fun makeTag(name: String, begin: Boolean, attrs: String = ""): CharSequence {
+            sb.setLength(0) // We are reusing the instance; reset it first.
+            sb.append(if (begin) LT else _LT)
+            sb.append(name)
+            sb.append(if (begin && attrs.isNotEmpty()) (" " + attrs) else "")
+            sb.append(GT)
+            return sb
         }
+
+        private val sb = StringBuilder()
     }
 }

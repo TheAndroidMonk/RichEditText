@@ -60,9 +60,6 @@ open class RichTexter(// The text view which acts as rich text view.
 
     /**
      * Returns all the markups applied strictly inside the current selection.
-     *
-     * @param from from inclusive
-     * @param to to exclusive
      */
     fun getAppliedMarkupsInSelection(): List<Markup> {
         return getAppliedMarkupsInRange(richTextView.selectionStart, richTextView.selectionEnd)
@@ -70,9 +67,6 @@ open class RichTexter(// The text view which acts as rich text view.
 
     /**
      * Returns all the markups applied in this whole text.
-     *
-     * @param from from inclusive
-     * @param to to exclusive
      */
     fun getAppliedMarkups(): List<Markup> {
         return getAppliedMarkupsInRange(0, richTextView.length())
