@@ -25,59 +25,8 @@ import com.gworks.richedittext.markups.Markup
 
 class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextView) {
 
-    private val textWatcher = object : TextWatcher {
-
-        private val NONE = -1
-        private val INSERT = 0
-        private val REPLACE = 1
-        private val DELETE = 2
-
-        private var operation = NONE
-        private var start = -1
-        private var before = -1
-        private var after = -1
-
-        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-
-            if (operation != NONE) return
-
-            this.start = start
-            this.before = count
-            this.after = after
-
-            operation = when {
-                count == 0 && after == 0 -> NONE
-                count == 0 -> INSERT
-                after == 0 -> DELETE
-                else -> REPLACE
-            }
-        }
-
-        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-            //TODO need to handle the spans in newly added text
-        }
-
-        override fun afterTextChanged(s: Editable) {
-
-            if (operation == INSERT || operation == REPLACE) {
-
-                val spans = getAppliedMarkupsInRange(start, start)
-                spans.forEach({
-                    if (s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
-                        it.removeInternal(s)
-                        it.applyInternal(s, start, start + after, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-                    }
-                })
-
-                // Mark the operation as completed; along with the first stmt of
-                // beforeTextChanged() this prevents the infinite loop.
-                operation = NONE
-            }
-        }
-    }
-
     init {
-        richTextView.addTextChangedListener(textWatcher)
+        richTextView.addTextChangedListener(MyWatcher(this))
     }
 
     fun applyInSelection(markupType: Class<out Markup>, value: Any?) {
@@ -227,4 +176,58 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
         }
     }
 
+    companion object {
+
+        // Constants for edit operation in the EditText.
+        private val NONE = -1
+        private val INSERT = 0
+        private val REPLACE = 1
+        private val DELETE = 2
+
+        class MyWatcher(val richTexter: RichTexter) : TextWatcher {
+
+            private var operation = NONE
+            private var start = -1
+            private var before = -1
+            private var after = -1
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+
+                if (operation != NONE) return
+
+                this.start = start
+                this.before = count
+                this.after = after
+
+                operation = when {
+                    count == 0 && after == 0 -> NONE
+                    count == 0 -> INSERT
+                    after == 0 -> DELETE
+                    else -> REPLACE
+                }
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                //TODO need to handle the spans in newly added text
+            }
+
+            override fun afterTextChanged(s: Editable) {
+
+                if (operation == INSERT || operation == REPLACE) {
+
+                    val spans = richTexter.getAppliedMarkupsInRange(start, start)
+                    spans.forEach({
+                        if (s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
+                            it.removeInternal(s)
+                            it.applyInternal(s, start, start + after, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                        }
+                    })
+
+                    // Mark the operation as completed; along with the first stmt of
+                    // beforeTextChanged() this prevents the infinite loop.
+                    operation = NONE
+                }
+            }
+        }
+    }
 }

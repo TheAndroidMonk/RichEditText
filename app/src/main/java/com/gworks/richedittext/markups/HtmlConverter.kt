@@ -40,14 +40,14 @@ class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMa
 
     companion object {
 
-        private val BOLD = "b"
-        private val ITALIC = "i"
-        private val UNDERLINE = "u"
-        private val LINK = "a"
-        private val H1 = "h1"
-        private val H2 = "h2"
-        private val H3 = "h3"
-        private val H4 = "h4"
+        val BOLD = "b"
+        val ITALIC = "i"
+        val UNDERLINE = "u"
+        val LINK = "a"
+        val H1 = "h1"
+        val H2 = "h2"
+        val H3 = "h3"
+        val H4 = "h4"
 
         private val ATTR_URL = "href"
         private val ATTR_SRC = "src"

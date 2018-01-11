@@ -16,12 +16,18 @@
 
 package com.gworks.richedittext
 
+import android.text.Editable
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.widget.TextView
-import com.gworks.richedittext.markups.HtmlConverter
-import com.gworks.richedittext.markups.Markup
-import com.gworks.richedittext.markups.MarkupConverter
+import com.gworks.richedittext.markups.*
+import org.xml.sax.Attributes
+import org.xml.sax.InputSource
+import org.xml.sax.helpers.DefaultHandler
+import org.xml.sax.helpers.XMLReaderFactory
 import java.util.*
+
+typealias MarkupFactory = (String) -> Class<out Markup>?
 
 open class RichTexter(// The text view which acts as rich text view.
         open val richTextView: TextView) {
@@ -87,8 +93,12 @@ open class RichTexter(// The text view which acts as rich text view.
     /**
      * Returns the rich text in the text view as plain text (i.e. String).
      */
-    fun getPlainText() : String {
+    fun getPlainText(): String {
         return richTextView.text.toString()
+    }
+
+    fun setPlainText(text: String) {
+        richTextView.text = text
     }
 
     fun getHtml(unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler? = null): String {
@@ -96,7 +106,23 @@ open class RichTexter(// The text view which acts as rich text view.
         else toHtml(richTextView.text as Spanned, unknownMarkupHandler)
     }
 
+    fun setHtml(html: String, markupFactory: MarkupFactory = defaultMarkupFactory, unknownTagHandler: UnknownTagHandler? = null){
+        richTextView.text = fromHtml(html, markupFactory, unknownTagHandler)
+    }
+
     companion object {
+
+        val defaultMarkupFactory: MarkupFactory = { tag ->
+
+            when (tag) {
+                HtmlConverter.BOLD -> Bold::class.java
+                HtmlConverter.ITALIC -> Italic::class.java
+                HtmlConverter.UNDERLINE -> Underline::class.java
+                HtmlConverter.LINK -> Link::class.java
+                else -> null
+            }
+
+        }
 
         fun toHtml(text: Spanned, unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler? = null): String {
 
@@ -135,6 +161,31 @@ open class RichTexter(// The text view which acts as rich text view.
             return html.toString()
         }
 
+        fun fromHtml(html: String, markupFactory: MarkupFactory = this.defaultMarkupFactory, unknownTagHandler: UnknownTagHandler? = null): Spanned {
+
+            val sb = SpannableStringBuilder()
+
+            val xmlReader = XMLReaderFactory.createXMLReader("org.ccil.cowan.tagsoup.Parser")
+            xmlReader.contentHandler = object : DefaultHandler() {
+
+                override fun startElement(uri: String, localName: String, qName: String, attributes: Attributes) {
+
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+
+                }
+
+            }
+            xmlReader.parse(InputSource(html))
+            return sb
+        }
+
+        interface UnknownTagHandler {
+
+            fun handleTag(out: Editable, qName: String, attributes: Attributes?, begin: Boolean)
+
+        }
     }
 
 }
