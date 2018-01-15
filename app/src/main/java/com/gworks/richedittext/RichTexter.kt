@@ -16,18 +16,11 @@
 
 package com.gworks.richedittext
 
-import android.text.Editable
-import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.widget.TextView
+import com.gworks.richedittext.converters.*
 import com.gworks.richedittext.markups.*
-import org.xml.sax.Attributes
-import org.xml.sax.InputSource
-import org.xml.sax.helpers.DefaultHandler
-import org.xml.sax.helpers.XMLReaderFactory
 import java.util.*
-
-typealias MarkupFactory = (String) -> Class<out Markup>?
 
 open class RichTexter(// The text view which acts as rich text view.
         open val richTextView: TextView) {
@@ -109,83 +102,4 @@ open class RichTexter(// The text view which acts as rich text view.
     fun setHtml(html: String, markupFactory: MarkupFactory = defaultMarkupFactory, unknownTagHandler: UnknownTagHandler? = null){
         richTextView.text = fromHtml(html, markupFactory, unknownTagHandler)
     }
-
-    companion object {
-
-        val defaultMarkupFactory: MarkupFactory = { tag ->
-
-            when (tag) {
-                HtmlConverter.BOLD -> Bold::class.java
-                HtmlConverter.ITALIC -> Italic::class.java
-                HtmlConverter.UNDERLINE -> Underline::class.java
-                HtmlConverter.LINK -> Link::class.java
-                else -> null
-            }
-
-        }
-
-        fun toHtml(text: Spanned, unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler? = null): String {
-
-            val html = StringBuilder(text.length)
-            val htmlConverter = HtmlConverter(unknownMarkupHandler)
-            val spans = text.getSpans(0, text.length, Markup::class.java).toMutableList()
-            var processed = -1
-
-            while (processed < text.length) {
-
-                // Get the next span transition.
-                val transitionIndex = text.nextSpanTransition(processed, text.length, Markup::class.java)
-
-                // If there are unprocessed text before transition add.
-                if (transitionIndex > processed)
-                    html.append(text, kotlin.math.max(processed, 0), transitionIndex)
-
-                val oldLen = html.length
-                val iterator = spans.iterator()
-                for (span in iterator) {
-
-                    val start = text.getSpanStart(span)
-                    if (start == transitionIndex)
-                        span.convert(html, html.length, htmlConverter, true)
-
-                    if (text.getSpanEnd(span) == transitionIndex) {
-                        span.convert(html, if (start == transitionIndex) html.length else oldLen, htmlConverter, false)
-                        iterator.remove()
-                    }
-                }
-
-                // The text and spans up to transitionIndex is processed.
-                processed = transitionIndex
-            }
-
-            return html.toString()
-        }
-
-        fun fromHtml(html: String, markupFactory: MarkupFactory = this.defaultMarkupFactory, unknownTagHandler: UnknownTagHandler? = null): Spanned {
-
-            val sb = SpannableStringBuilder()
-
-            val xmlReader = XMLReaderFactory.createXMLReader("org.ccil.cowan.tagsoup.Parser")
-            xmlReader.contentHandler = object : DefaultHandler() {
-
-                override fun startElement(uri: String, localName: String, qName: String, attributes: Attributes) {
-
-                }
-
-                override fun endElement(uri: String?, localName: String?, qName: String?) {
-
-                }
-
-            }
-            xmlReader.parse(InputSource(html))
-            return sb
-        }
-
-        interface UnknownTagHandler {
-
-            fun handleTag(out: Editable, qName: String, attributes: Attributes?, begin: Boolean)
-
-        }
-    }
-
 }

@@ -24,6 +24,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.gworks.richedittext.markups.Bold
 import com.gworks.richedittext.markups.Italic
+import com.gworks.richedittext.markups.Link
 import com.gworks.richedittext.markups.Markup
 import com.gworks.richedittext.widget.RichEditText
 
@@ -41,11 +42,14 @@ class MainActivity : AppCompatActivity() {
         val layout = findViewById<LinearLayout>(R.id.buttonLayout)
         layout.addView(newMarkupButton("Bold", Bold::class.java))
         layout.addView(newMarkupButton("Italics", Italic::class.java))
+//        layout.addView(newMarkupButton("Link", Link::class.java))
 
         val textView = findViewById<TextView>(R.id.textView)
 
         val button = findViewById<Button>(R.id.button)
         button.setOnClickListener({textView.text = editText.getHtml()})
+//        editText.setHtml("svf<b>efsf</b> fgfgf f<i>df<b>g</i>fg</b>")
+        editText.setHtml("svf<b>efsf</b> fgfgf f<i>df<b>g</i>fg</b>")
     }
 
     private fun newMarkupButton(label: String, mId: Class<out Markup>): Button {

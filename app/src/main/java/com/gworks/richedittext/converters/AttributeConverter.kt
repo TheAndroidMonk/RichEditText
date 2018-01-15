@@ -14,15 +14,25 @@
  *    limitations under the License.
  */
 
-package com.gworks.richedittext.markups
+package com.gworks.richedittext.converters
 
-import android.text.style.UnderlineSpan
-import com.gworks.richedittext.converters.MarkupConverter
+interface AttributeConverter<T> {
 
-class Underline : StyleMarkup(UnderlineSpan()) {
+    val unknownAttributeConverter: UnknownAttributeConverter<T>?
 
-    override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
-        converter.convertMarkup(sb, offset, this, begin)
+    fun convertLinkAttribute(attr: T): Any? {
+        return null
     }
 
+    fun convertFontAttribute(attr: T): Any? {
+        return null
+    }
+
+    fun convertAttribute(attr: T): Any? {
+        return unknownAttributeConverter?.convertAttribute(attr)
+    }
+
+    interface UnknownAttributeConverter<T> {
+        fun convertAttribute(attr: T): Any?
+    }
 }

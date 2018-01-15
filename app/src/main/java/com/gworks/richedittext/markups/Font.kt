@@ -20,6 +20,9 @@ import android.text.Spannable
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
+import com.gworks.richedittext.converters.AttributeConverter
+import com.gworks.richedittext.converters.MarkupConverter
+import com.gworks.richedittext.converters.updateSpanFlags
 
 class Font(attributes: Attributes) : BaseAttributedMarkup<Font.Attributes>(attributes) {
 
@@ -29,6 +32,9 @@ class Font(attributes: Attributes) : BaseAttributedMarkup<Font.Attributes>(attri
 
     override val isSplittable: Boolean
         get() = true
+
+    constructor(converter: AttributeConverter<Any>, attr: Any) :
+            this(converter.convertFontAttribute(attr) as Font.Attributes)
 
     init {
         typefaceSpan = TypefaceSpan(attributes.typeface)
@@ -52,5 +58,11 @@ class Font(attributes: Attributes) : BaseAttributedMarkup<Font.Attributes>(attri
         text.removeSpan(colorSpan)
     }
 
-    class Attributes @JvmOverloads constructor(val typeface: String, val size: Int, val color: Int)
+    override fun updateSpanFlags(text: Spannable, flags: Int) {
+        updateSpanFlags(text, typefaceSpan, flags)
+        updateSpanFlags(text, sizeSpan, flags)
+        updateSpanFlags(text, colorSpan, flags)
+    }
+
+    class Attributes(val typeface: String, val size: Int, val color: Int)
 }

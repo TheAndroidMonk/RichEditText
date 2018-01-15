@@ -50,4 +50,8 @@ class RichEditText : AppCompatEditText {
     fun getHtml(): String {
         return manager.getHtml(null)
     }
+
+    fun setHtml(html: String) {
+        manager.setHtml(html)
+    }
 }

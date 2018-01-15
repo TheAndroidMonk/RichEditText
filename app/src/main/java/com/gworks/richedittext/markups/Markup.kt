@@ -17,6 +17,8 @@ package com.gworks.richedittext.markups
 
 import android.text.Spannable
 import android.text.Spanned
+import com.gworks.richedittext.converters.MarkupConverter
+import com.gworks.richedittext.converters.updateSpanFlags
 
 interface Markup {
 
@@ -33,6 +35,11 @@ interface Markup {
     fun removeInternal(text: Spannable) {
         text.removeSpan(this)
         remove(text)
+    }
+
+    fun updateSpanFlagsInternal(text: Spannable, flags: Int) {
+        updateSpanFlags(text, this, flags)
+        updateSpanFlags(text, flags)
     }
 
     /**
@@ -75,5 +82,7 @@ interface Markup {
      * Removes this markup from the given text.
      */
     fun remove(text: Spannable)
+
+    fun updateSpanFlags(text: Spannable, flags: Int)
 }
 

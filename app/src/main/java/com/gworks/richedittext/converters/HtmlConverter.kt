@@ -14,7 +14,12 @@
  *    limitations under the License.
  */
 
-package com.gworks.richedittext.markups
+package com.gworks.richedittext.converters
+
+import com.gworks.richedittext.markups.Bold
+import com.gworks.richedittext.markups.Italic
+import com.gworks.richedittext.markups.Link
+import com.gworks.richedittext.markups.Underline
 
 class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?) : MarkupConverter {
 
@@ -44,13 +49,17 @@ class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMa
         val ITALIC = "i"
         val UNDERLINE = "u"
         val LINK = "a"
+        val SPAN = "span"
         val H1 = "h1"
         val H2 = "h2"
         val H3 = "h3"
         val H4 = "h4"
 
-        private val ATTR_URL = "href"
-        private val ATTR_SRC = "src"
+        val ATTR_URL = "href"
+        val ATTR_SRC = "src"
+        val ATTR_SIZE = "size"
+        val ATTR_FONT = "font"
+        val ATTR_COLOR = "color"
 
         private val LT = "<"
         private val _LT = "</"

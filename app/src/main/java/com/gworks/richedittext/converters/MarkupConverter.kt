@@ -14,7 +14,9 @@
  *    limitations under the License.
  */
 
-package com.gworks.richedittext.markups
+package com.gworks.richedittext.converters
+
+import com.gworks.richedittext.markups.*
 
 interface MarkupConverter {
 

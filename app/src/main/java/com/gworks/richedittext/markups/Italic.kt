@@ -18,6 +18,7 @@ package com.gworks.richedittext.markups
 
 import android.graphics.Typeface
 import android.text.style.StyleSpan
+import com.gworks.richedittext.converters.MarkupConverter
 
 class Italic : StyleMarkup(StyleSpan(Typeface.ITALIC)) {
 

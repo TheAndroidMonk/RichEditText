@@ -20,6 +20,7 @@ import android.text.Editable
 import android.text.Spanned
 import android.text.TextWatcher
 import android.widget.EditText
+import com.gworks.richedittext.converters.createMarkup
 import com.gworks.richedittext.markups.AttributedMarkup
 import com.gworks.richedittext.markups.Markup
 
@@ -161,19 +162,6 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
         // Attributed markups are updated (reapplied) hence always check them.
         if (AttributedMarkup::class.javaObjectType.isAssignableFrom(markupType) || !toggled)
             applyInRange(markupType, value, start, end)
-    }
-
-    private fun createMarkup(markupType: Class<out Markup>, value: Any?): Markup {
-        try {
-            //TODO Add reflection code to create an instance for attributed markups.
-            return markupType.newInstance()
-        } catch (e: InstantiationException) {
-            e.printStackTrace()
-            throw e
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-            throw e
-        }
     }
 
     companion object {

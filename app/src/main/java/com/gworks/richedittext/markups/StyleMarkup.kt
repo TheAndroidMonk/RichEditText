@@ -17,6 +17,7 @@
 package com.gworks.richedittext.markups
 
 import android.text.Spannable
+import com.gworks.richedittext.converters.updateSpanFlags
 
 abstract class StyleMarkup(val span:Any) : Markup {
 
@@ -33,5 +34,9 @@ abstract class StyleMarkup(val span:Any) : Markup {
 
     override fun remove(text: Spannable) {
         text.removeSpan(span)
+    }
+
+    override fun updateSpanFlags(text: Spannable, flags: Int) {
+        updateSpanFlags(text, span, flags)
     }
 }
