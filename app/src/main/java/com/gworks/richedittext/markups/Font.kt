@@ -24,7 +24,7 @@ import com.gworks.richedittext.converters.AttributeConverter
 import com.gworks.richedittext.converters.MarkupConverter
 import com.gworks.richedittext.converters.updateSpanFlags
 
-class Font(attributes: Attributes) : BaseAttributedMarkup<Font.Attributes>(attributes) {
+class Font(attributes: Attributes) : AttributedMarkup<Font.Attributes>(attributes) {
 
     private val typefaceSpan: TypefaceSpan
     private val sizeSpan: AbsoluteSizeSpan
@@ -33,8 +33,7 @@ class Font(attributes: Attributes) : BaseAttributedMarkup<Font.Attributes>(attri
     override val isSplittable: Boolean
         get() = true
 
-    constructor(converter: AttributeConverter<Any>, attr: Any) :
-            this(converter.convertFontAttribute(attr) as Font.Attributes)
+    constructor(converter: AttributeConverter<Any>, attr: Any) : this(converter.convertFontAttribute(attr)!!)
 
     init {
         typefaceSpan = TypefaceSpan(attributes.typeface)

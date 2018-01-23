@@ -16,7 +16,6 @@
 
 package com.gworks.richedittext.markups
 
-import android.text.Spannable
 import android.text.style.URLSpan
 import com.gworks.richedittext.converters.AttributeConverter
 import com.gworks.richedittext.converters.MarkupConverter
@@ -26,8 +25,7 @@ class Link(url: String) : SingleSpanAttributedMarkup<String>(URLSpan(url), url) 
     override val isSplittable: Boolean
         get() = false
 
-    constructor(converter: AttributeConverter<Any>, attr: Any) :
-            this(converter.convertFontAttribute(attr) as String)
+    constructor(converter: AttributeConverter<Any>, attr: Any) : this(converter.convertLinkAttribute(attr)!!)
 
     override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, offset, this, begin)

@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         val button = findViewById<Button>(R.id.button)
         button.setOnClickListener({textView.text = editText.getHtml()})
 //        editText.setHtml("svf<b>efsf</b> fgfgf f<i>df<b>g</i>fg</b>")
-        editText.setHtml("svf<b>efsf</b> fgfgf f<i>df<b>g</i>fg</b>")
+//        editText.setHtml("svf<b>efsf</b> fgfgf f<i>df<b>g</i>fg</b>")
     }
 
     private fun newMarkupButton(label: String, mId: Class<out Markup>): Button {

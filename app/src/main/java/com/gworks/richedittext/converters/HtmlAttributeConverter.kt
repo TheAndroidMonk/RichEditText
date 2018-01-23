@@ -11,7 +11,7 @@ import org.xml.sax.Attributes
 class HtmlAttributeConverter(override val unknownAttributeConverter: UnknownAttributeConverter<Attributes>? = null) : AttributeConverter<Attributes> {
 
     override fun convertLinkAttribute(attr: Attributes): String? {
-        return attr.getValue(HtmlConverter.ATTR_URL)
+        return attr.getValue(HtmlConverter.ATTR_HREF)
     }
 
     override fun convertFontAttribute(attr: Attributes): Font.Attributes? {

@@ -20,7 +20,7 @@ import android.graphics.Typeface
 import android.text.style.StyleSpan
 import com.gworks.richedittext.converters.MarkupConverter
 
-class Bold : StyleMarkup(StyleSpan(Typeface.BOLD)) {
+class Bold : SingleSpanMarkup(StyleSpan(Typeface.BOLD)) {
 
     override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, offset, this, begin)

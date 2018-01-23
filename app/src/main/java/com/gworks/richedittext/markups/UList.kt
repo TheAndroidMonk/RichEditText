@@ -16,27 +16,21 @@
 
 package com.gworks.richedittext.markups
 
-import android.text.Spannable
-import com.gworks.richedittext.converters.updateSpanFlags
+import com.gworks.richedittext.converters.AttributeConverter
+import com.gworks.richedittext.converters.MarkupConverter
 
-abstract class StyleMarkup(val span:Any) : Markup {
+class UList(attributes: Attributes) : List<UList.Attributes>(attributes) {
 
-    override val isSplittable: Boolean
-        get() = true
+    constructor(converter: AttributeConverter<Any>, attr: Any) : this(converter.convertUListAttribute(attr)!!)
 
-    override fun canExistWith(anotherType: Class<out Markup>): Boolean {
-        return anotherType != javaClass
+    override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
+        converter.convertMarkup(sb, offset, this, begin)
     }
 
-    override fun apply(text: Spannable, from: Int, to: Int, flags: Int) {
-        text.setSpan(span, from, to, flags)
+    override fun createListItem(index: Int): ListItem {
+        return ListItem(attributes)
     }
 
-    override fun remove(text: Spannable) {
-        text.removeSpan(span)
-    }
-
-    override fun updateSpanFlags(text: Spannable, flags: Int) {
-        updateSpanFlags(text, span, flags)
-    }
+    class Attributes(gapWidth: Int, color: Int) : ListItem.Attributes(false, gapWidth, color)
 }
+

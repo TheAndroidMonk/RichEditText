@@ -16,15 +16,32 @@
 
 package com.gworks.richedittext.converters
 
+import com.gworks.richedittext.markups.Font
+import com.gworks.richedittext.markups.ListItem
+import com.gworks.richedittext.markups.OList
+import com.gworks.richedittext.markups.UList
+
 interface AttributeConverter<T> {
 
     val unknownAttributeConverter: UnknownAttributeConverter<T>?
 
-    fun convertLinkAttribute(attr: T): Any? {
+    fun convertLinkAttribute(attr: T): String? {
         return null
     }
 
-    fun convertFontAttribute(attr: T): Any? {
+    fun convertFontAttribute(attr: T): Font.Attributes? {
+        return null
+    }
+
+    fun convertOListAttribute(attr: T): OList.Attributes? {
+        return null
+    }
+
+    fun convertUListAttribute(attr: T): UList.Attributes? {
+        return null
+    }
+
+    fun convertListItemAttribute(attr: T): ListItem.Attributes? {
         return null
     }
 

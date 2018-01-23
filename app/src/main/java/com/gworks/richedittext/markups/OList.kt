@@ -13,17 +13,27 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package com.gworks.richedittext.markups
 
-import android.graphics.Typeface
-import android.text.style.StyleSpan
+import com.gworks.richedittext.converters.AttributeConverter
 import com.gworks.richedittext.converters.MarkupConverter
 
-class Italic : SingleSpanMarkup(StyleSpan(Typeface.ITALIC)) {
+class OList(attributes: Attributes) : List<OList.Attributes>(attributes) {
+
+    constructor(converter: AttributeConverter<Any>, attr: Any) : this(converter.convertOListAttribute(attr)!!)
 
     override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, offset, this, begin)
     }
 
+    override fun createListItem(index: Int): ListItem {
+        return ListItem(attributes)
+    }
+
+    override fun setIndex(listItem: ListItem, index: Int) {
+        listItem.bulletText = (index + 1).toString()
+    }
+
+    class Attributes(margin: Int, color: Int, separator: CharSequence? = null) : ListItem.Attributes(true, margin, color, separator)
 }
+

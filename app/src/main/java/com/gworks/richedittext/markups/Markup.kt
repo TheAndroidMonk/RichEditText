@@ -20,24 +20,24 @@ import android.text.Spanned
 import com.gworks.richedittext.converters.MarkupConverter
 import com.gworks.richedittext.converters.updateSpanFlags
 
-interface Markup {
+abstract class Markup {
 
     /**
      * Tells whether this markup type is splittable.
      */
-    val isSplittable: Boolean
+    abstract val isSplittable: Boolean
 
-    fun applyInternal(text: Spannable, from: Int, to: Int, flags: Int) {
+    internal fun applyInternal(text: Spannable, from: Int, to: Int, flags: Int) {
         text.setSpan(this, from, to, flags)
         apply(text, from, to, flags)
     }
 
-    fun removeInternal(text: Spannable) {
+    internal fun removeInternal(text: Spannable) {
         text.removeSpan(this)
         remove(text)
     }
 
-    fun updateSpanFlagsInternal(text: Spannable, flags: Int) {
+    internal fun updateSpanFlagsInternal(text: Spannable, flags: Int) {
         updateSpanFlags(text, this, flags)
         updateSpanFlags(text, flags)
     }
@@ -62,12 +62,12 @@ interface Markup {
      * @param converter
      * @param begin
      */
-    fun convert(sb: StringBuilder, offset: Int = sb.length, converter: MarkupConverter, begin: Boolean)
+    abstract fun convert(sb: StringBuilder, offset: Int = sb.length, converter: MarkupConverter, begin: Boolean)
 
     /**
      * Tells whether this markup can exist with the given markup type.
      */
-    fun canExistWith(anotherType: Class<out Markup>): Boolean
+    abstract fun canExistWith(anotherType: Class<out Markup>): Boolean
 
     /**
      * Applies this markup to the given text in given range [from, to).
@@ -76,13 +76,13 @@ interface Markup {
      * @param to to exclusive
      * @param flags
      */
-    fun apply(text: Spannable, from: Int, to: Int, flags: Int)
+    abstract protected fun apply(text: Spannable, from: Int, to: Int, flags: Int)
 
     /**
      * Removes this markup from the given text.
      */
-    fun remove(text: Spannable)
+    abstract protected fun remove(text: Spannable)
 
-    fun updateSpanFlags(text: Spannable, flags: Int)
+    abstract protected fun updateSpanFlags(text: Spannable, flags: Int)
 }
 

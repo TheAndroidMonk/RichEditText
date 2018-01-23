@@ -42,6 +42,18 @@ interface MarkupConverter {
         return false
     }
 
+    fun convertMarkup(sb: StringBuilder, offset: Int, uList: UList, begin: Boolean): Boolean {
+        return false
+    }
+
+    fun convertMarkup(sb: StringBuilder, offset: Int, oList: OList, begin: Boolean): Boolean {
+        return false
+    }
+
+    fun convertMarkup(sb: StringBuilder, offset: Int, listItem: ListItem, begin: Boolean): Boolean {
+        return false
+    }
+
     fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, markup: Markup, begin: Boolean): Boolean {
         return unknownMarkupHandler?.handleMarkup(sb, offset, markup, begin) ?: false
     }

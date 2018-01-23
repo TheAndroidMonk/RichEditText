@@ -25,10 +25,11 @@ import com.gworks.richedittext.converters.AttributeConverter
  * while implementing this interface and single param need not be wrapped.
  * @param <ATTR>
 */
-interface AttributedMarkup<ATTR> : Markup {
+abstract class AttributedMarkup<ATTR>( // The attributes of this [AttributedMarkup].
+                                       val attributes: ATTR) : Markup() {
 
-    /**
-     * The attributes of this [AttributedMarkup].
-     */
-    val attributes: ATTR
+    override fun canExistWith(anotherType: Class<out Markup>): Boolean {
+        return anotherType != javaClass
+    }
+
 }

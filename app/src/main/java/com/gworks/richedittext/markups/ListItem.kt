@@ -16,14 +16,29 @@
 
 package com.gworks.richedittext.markups
 
-import android.graphics.Typeface
-import android.text.style.StyleSpan
+import com.gworks.richedittext.converters.AttributeConverter
 import com.gworks.richedittext.converters.MarkupConverter
 
-class Italic : SingleSpanMarkup(StyleSpan(Typeface.ITALIC)) {
+class ListItem(attributes: Attributes) : SingleSpanAttributedMarkup<ListItem.Attributes>(
+        ListItemSpan(attributes.gapWidth, attributes.color, attributes.separator), attributes) {
+
+    override val isSplittable: Boolean
+        get() = false
+
+    var bulletText: CharSequence?
+        set(value) {
+            (this.span as ListItemSpan).bulletText = value
+        }
+        get() {
+            return (this.span as ListItemSpan).bulletText
+        }
+
+    constructor(converter: AttributeConverter<Any>, attr: Any) : this(converter.convertListItemAttribute(attr)!!)
 
     override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, offset, this, begin)
     }
+
+    open class Attributes(val ordered: Boolean, val gapWidth: Int, val color: Int, val separator: CharSequence? = null)
 
 }

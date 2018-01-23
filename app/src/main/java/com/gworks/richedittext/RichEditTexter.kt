@@ -21,6 +21,8 @@ import android.text.Spanned
 import android.text.TextWatcher
 import android.widget.EditText
 import com.gworks.richedittext.converters.createMarkup
+import com.gworks.richedittext.converters.indexOf
+import com.gworks.richedittext.converters.leftIndexOf
 import com.gworks.richedittext.markups.AttributedMarkup
 import com.gworks.richedittext.markups.Markup
 
@@ -146,9 +148,8 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
      * @param markupType
      * @param value
      */
-    fun onMarkupMenuClicked(markupType: Class<out Markup>, value: Any?) {
-        val start = richTextView.selectionStart
-        val end = richTextView.selectionEnd
+    fun onMarkupMenuClicked(markupType: Class<out Markup>, value: Any?, start:Int, end:Int ) {
+
         var toggled = false
 
         for (existing in getAppliedMarkupsInRange(start, end)) {
@@ -160,17 +161,30 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
             }
         }
         // Attributed markups are updated (reapplied) hence always check them.
-        if (AttributedMarkup::class.javaObjectType.isAssignableFrom(markupType) || !toggled)
+        if (/*value != null && AttributedMarkup::class.javaObjectType.isAssignableFrom(markupType) ||*/ !toggled)
             applyInRange(markupType, value, start, end)
+    }
+
+    fun onMarkupMenuClicked(markupType: Class<out Markup>, value: Any?){
+        onMarkupMenuClicked(markupType, value, richTextView.selectionStart, richTextView.selectionEnd)
+    }
+
+    fun onParagraphMarkupMenuClicked(markupType: Class<out Markup>, value: Any?) {
+        val text = richTextView.text
+        val st = text.leftIndexOf('\n', richTextView.selectionStart)
+        val en = text.indexOf('\n', richTextView.selectionEnd)
+        onMarkupMenuClicked(markupType, value,
+                if (st == 0) 0 else st + 1,
+                if(en == text.length) text.length else en + 1)
     }
 
     companion object {
 
         // Constants for edit operation in the EditText.
-        private val NONE = -1
-        private val INSERT = 0
-        private val REPLACE = 1
-        private val DELETE = 2
+        private const val NONE = -1
+        private const val INSERT = 0
+        private const val REPLACE = 1
+        private const val DELETE = 2
 
         class MyWatcher(val richTexter: RichTexter) : TextWatcher {
 

@@ -16,9 +16,27 @@
 
 package com.gworks.richedittext.markups
 
-abstract class BaseAttributedMarkup<ATTR>(override val attributes: ATTR) : AttributedMarkup<ATTR> {
+import android.text.Spannable
+import com.gworks.richedittext.converters.updateSpanFlags
+
+abstract class SingleSpanMarkup(val span:Any) : Markup() {
+
+    override val isSplittable: Boolean
+        get() = true
 
     override fun canExistWith(anotherType: Class<out Markup>): Boolean {
         return anotherType != javaClass
+    }
+
+    override fun apply(text: Spannable, from: Int, to: Int, flags: Int) {
+        text.setSpan(span, from, to, flags)
+    }
+
+    override fun remove(text: Spannable) {
+        text.removeSpan(span)
+    }
+
+    override fun updateSpanFlags(text: Spannable, flags: Int) {
+        updateSpanFlags(text, span, flags)
     }
 }

@@ -17,10 +17,13 @@
 package com.gworks.richedittext.widget
 
 import android.content.Context
+import android.graphics.Color
 import android.support.v7.widget.AppCompatEditText
 import android.util.AttributeSet
 import com.gworks.richedittext.RichEditTexter
 import com.gworks.richedittext.markups.Markup
+import com.gworks.richedittext.markups.OList
+import com.gworks.richedittext.markups.UList
 
 
 class RichEditText : AppCompatEditText {
@@ -44,7 +47,7 @@ class RichEditText : AppCompatEditText {
     }
 
     fun onMarkupClicked(id: Class<out Markup>, value: Any?) {
-        manager.onMarkupMenuClicked(id, value)
+        manager.onParagraphMarkupMenuClicked(OList::class.java, UList.Attributes(5, Color.GRAY))
     }
 
     fun getHtml(): String {

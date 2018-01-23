@@ -19,7 +19,7 @@ package com.gworks.richedittext.markups
 import android.text.style.UnderlineSpan
 import com.gworks.richedittext.converters.MarkupConverter
 
-class Underline : StyleMarkup(UnderlineSpan()) {
+class Underline : SingleSpanMarkup(UnderlineSpan()) {
 
     override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, offset, this, begin)

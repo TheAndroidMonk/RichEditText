@@ -20,11 +20,13 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+ext.kotlin_version = '1.1.2-3'
+
 android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.gworks.richedittext"
-        minSdkVersion 16
+        minSdkVersion 22
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"

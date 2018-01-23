@@ -16,10 +16,7 @@
 
 package com.gworks.richedittext.converters
 
-import com.gworks.richedittext.markups.Bold
-import com.gworks.richedittext.markups.Italic
-import com.gworks.richedittext.markups.Link
-import com.gworks.richedittext.markups.Underline
+import com.gworks.richedittext.markups.*
 
 class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?) : MarkupConverter {
 
@@ -38,25 +35,43 @@ class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMa
         return true
     }
 
+    override fun convertMarkup(sb: StringBuilder, offset: Int, uList: UList, begin: Boolean): Boolean {
+        sb.insert(offset, makeTag(name = UL, begin = begin))
+        return true
+    }
+
+    override fun convertMarkup(sb: StringBuilder, offset: Int, oList: OList, begin: Boolean): Boolean {
+        sb.insert(offset, makeTag(name = OL, begin = begin))
+        return true
+    }
+
+    override fun convertMarkup(sb: StringBuilder, offset: Int, listItem: ListItem, begin: Boolean): Boolean {
+        sb.insert(offset, makeTag(name = LI, begin = begin))
+        return true
+    }
+
     override fun convertMarkup(sb: StringBuilder, offset: Int, linkMarkup: Link, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(name = LINK, begin = begin, attrs = ATTR_URL + "=" + linkMarkup.attributes))
+        sb.insert(offset, makeTag(name = LINK, begin = begin, attrs = ATTR_HREF + "=" + linkMarkup.attributes))
         return true
     }
 
     companion object {
 
+        val H1 = "h1"
+        val H2 = "h2"
+        val H3 = "h3"
+        val H4 = "h4"
         val BOLD = "b"
         val ITALIC = "i"
         val UNDERLINE = "u"
         val LINK = "a"
         val SPAN = "span"
-        val H1 = "h1"
-        val H2 = "h2"
-        val H3 = "h3"
-        val H4 = "h4"
+        val LI = "li"
+        val OL = "ol"
+        val UL = "ul"
 
-        val ATTR_URL = "href"
         val ATTR_SRC = "src"
+        val ATTR_HREF = "href"
         val ATTR_SIZE = "size"
         val ATTR_FONT = "font"
         val ATTR_COLOR = "color"
