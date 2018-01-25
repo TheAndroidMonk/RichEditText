@@ -148,7 +148,7 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
      * @param markupType
      * @param value
      */
-    fun onMarkupMenuClicked(markupType: Class<out Markup>, value: Any?, start:Int, end:Int ) {
+    fun onMarkupMenuClicked(markupType: Class<out Markup>, value: Any?, start: Int, end: Int) {
 
         var toggled = false
 
@@ -161,21 +161,25 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
             }
         }
         // Attributed markups are updated (reapplied) hence always check them.
-        if (/*value != null && AttributedMarkup::class.javaObjectType.isAssignableFrom(markupType) ||*/ !toggled)
+        if (!toggled /*value != null && AttributedMarkup::class.javaObjectType.isAssignableFrom(markupType) ||*/)
             applyInRange(markupType, value, start, end)
     }
 
-    fun onMarkupMenuClicked(markupType: Class<out Markup>, value: Any?){
+    fun onMarkupMenuClicked(markupType: Class<out Markup>, value: Any?) {
         onMarkupMenuClicked(markupType, value, richTextView.selectionStart, richTextView.selectionEnd)
     }
 
     fun onParagraphMarkupMenuClicked(markupType: Class<out Markup>, value: Any?) {
         val text = richTextView.text
-        val st = text.leftIndexOf('\n', richTextView.selectionStart)
+        var st = text.leftIndexOf('\n', richTextView.selectionStart)
+        if (richTextView.selectionStart == richTextView.selectionEnd
+                && richTextView.selectionEnd < text.length
+                && text[richTextView.selectionEnd] == '\n')
+            st = text.leftIndexOf('\n', richTextView.selectionStart - 1)
         val en = text.indexOf('\n', richTextView.selectionEnd)
         onMarkupMenuClicked(markupType, value,
                 if (st == 0) 0 else st + 1,
-                if(en == text.length) text.length else en + 1)
+                if (en == text.length) text.length else en + 1)
     }
 
     companion object {

@@ -27,17 +27,17 @@ abstract class Markup {
      */
     abstract val isSplittable: Boolean
 
-    internal fun applyInternal(text: Spannable, from: Int, to: Int, flags: Int) {
+    internal open fun applyInternal(text: Spannable, from: Int, to: Int, flags: Int) {
         text.setSpan(this, from, to, flags)
         apply(text, from, to, flags)
     }
 
-    internal fun removeInternal(text: Spannable) {
+    internal open fun removeInternal(text: Spannable) {
         text.removeSpan(this)
         remove(text)
     }
 
-    internal fun updateSpanFlagsInternal(text: Spannable, flags: Int) {
+    internal open fun updateSpanFlagsInternal(text: Spannable, flags: Int) {
         updateSpanFlags(text, this, flags)
         updateSpanFlags(text, flags)
     }

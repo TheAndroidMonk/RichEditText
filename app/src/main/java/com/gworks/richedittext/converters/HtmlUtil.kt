@@ -38,9 +38,9 @@ fun CharSequence.indexOf(char: Char, start: Int = 0, limit: Int = this.length, i
     return if (result >= 0) minOf(result, limit) else limit
 }
 
-fun CharSequence.leftIndexOf(char: Char, start: Int = this.length - 1, limit: Int = 0) : Int {
+fun CharSequence.leftIndexOf(char: Char, start: Int = this.length, limit: Int = 0) : Int {
     var st = 0
-    for (i in start downTo limit) {
+    for (i in minOf(this.length - 1, start) downTo limit) {
         if (this[i] == char) {
             st = i
             break

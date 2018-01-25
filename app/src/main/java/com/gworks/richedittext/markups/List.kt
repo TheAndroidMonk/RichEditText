@@ -23,12 +23,18 @@ import java.util.*
 abstract class List<ATTR>(attributes: ATTR) : AttributedMarkup<ATTR>(attributes) {
 
     override val isSplittable: Boolean
-        get() = false
+        get() = true
 
     private val listItems = LinkedList<ListItem>()
 
+    override fun applyInternal(text: Spannable, from: Int, to: Int, flags: Int) {
+        super.applyInternal(text, from, to,
+                if(to == text.length) Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                else Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+    }
+
     override fun apply(text: Spannable, from: Int, to: Int, flags: Int) {
-        if (text.length == to || text[to] == '\n') {
+        if (text.length == to || text[to - 1] == '\n') {
             var i = from
             var index = 0
             while (i < to) {
@@ -41,7 +47,9 @@ abstract class List<ATTR>(attributes: ATTR) : AttributedMarkup<ATTR>(attributes)
                 }
                 setIndex(listItem, index)
                 val spanTo = minOf(text.indexOf('\n', i, to) + 1, to)
-                listItem.applyInternal(text, i, spanTo, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                listItem.applyInternal(text, i, spanTo,
+                        if (spanTo == text.length) Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                        else Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
                 i = spanTo
                 index++
             }
