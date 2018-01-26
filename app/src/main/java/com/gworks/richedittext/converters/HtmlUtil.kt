@@ -1,12 +1,10 @@
 package com.gworks.richedittext.converters
 
-import android.graphics.Color
 import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import com.gworks.richedittext.markups.*
-import com.gworks.richedittext.markups.List
 import org.xml.sax.Attributes
 import org.xml.sax.ContentHandler
 import org.xml.sax.InputSource
@@ -93,20 +91,9 @@ fun fromHtml(html: String,
              xmlReader: XMLReader = XMLReaderFactory.createXMLReader("org.ccil.cowan.tagsoup.Parser"),
              contentHandler: ContentHandler? = null): Spanned {
     val sb = SpannableStringBuilder()
-    xmlReader.contentHandler = if (contentHandler == null) DefaultHtmlHandler(sb, markupFactory, unknownTagHandler, attributeConverter) else contentHandler
+    xmlReader.contentHandler = contentHandler ?: DefaultHtmlHandler(sb, markupFactory, unknownTagHandler, attributeConverter)
     xmlReader.parse(InputSource(StringReader(html)))
     return sb
-}
-
-internal fun createMarkup(markupType: Class<out Markup>, value: Any?): Markup {
-    // TODO Add reflection code to create an instance for attributed markups.
-    return OList(OList.Attributes(List.DEFAULT_MARGIN, Color.DKGRAY, "."))
-//    return markupType.newInstance()
-}
-
-internal fun <T> createMarkup(markupType: Class<out Markup>, attributeConverter: AttributeConverter<T>? = null, attr: T? = null): Markup {
-    // TODO Add reflection code to create an instance for attributed markups.
-    return markupType.newInstance()
 }
 
 interface UnknownTagHandler {

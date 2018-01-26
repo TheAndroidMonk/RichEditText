@@ -2,14 +2,15 @@ package com.gworks.richedittext.converters
 
 import android.text.Editable
 import android.text.Spanned
+import com.gworks.richedittext.createMarkup
 import com.gworks.richedittext.markups.Markup
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 
-open class DefaultHtmlHandler(val editable: Editable,
-                              val markupFactory: MarkupFactory,
-                              val unknownTagHandler: UnknownTagHandler?,
-                              val attributeConverter: AttributeConverter<Attributes>) : DefaultHandler(){
+open class DefaultHtmlHandler(private val editable: Editable,
+                              private val markupFactory: MarkupFactory,
+                              private val unknownTagHandler: UnknownTagHandler?,
+                              private val attributeConverter: AttributeConverter<Attributes>) : DefaultHandler(){
 
     override fun startElement(uri: String, localName: String, qName: String, attributes: Attributes) {
         val markupType = markupFactory.invoke(qName)

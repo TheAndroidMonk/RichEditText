@@ -47,7 +47,11 @@ class RichEditText : AppCompatEditText {
     }
 
     fun onMarkupClicked(id: Class<out Markup>, value: Any?) {
-        manager.onParagraphMarkupMenuClicked(OList::class.java, UList.Attributes(5, Color.GRAY))
+        manager.onMarkupMenuClicked(id, value)
+    }
+
+    fun onParagraphMarkupClicked(id: Class<out Markup>, value: Any?) {
+        manager.onParagraphMarkupMenuClicked(id, value)
     }
 
     fun getHtml(): String {

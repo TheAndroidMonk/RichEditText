@@ -27,6 +27,10 @@ abstract class List<ATTR>(attributes: ATTR) : AttributedMarkup<ATTR>(attributes)
 
     private val listItems = LinkedList<ListItem>()
 
+    override fun canExistWith(anotherType: Class<out Markup>): Boolean {
+        return anotherType != OList::class.java && anotherType != UList::class.java
+    }
+
     override fun applyInternal(text: Spannable, from: Int, to: Int, flags: Int) {
         super.applyInternal(text, from, to,
                 if(to == text.length) Spannable.SPAN_INCLUSIVE_INCLUSIVE

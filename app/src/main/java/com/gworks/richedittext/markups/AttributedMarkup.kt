@@ -16,8 +16,6 @@
 
 package com.gworks.richedittext.markups
 
-import com.gworks.richedittext.converters.AttributeConverter
-
 /**
  * Represents an attributed markup or markup with parameters. It could be single
  * param (like the url in Link markup) or a set of params (like style params in Font markup).

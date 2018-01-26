@@ -16,16 +16,15 @@
 
 package com.gworks.richedittext
 
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.gworks.richedittext.markups.Bold
-import com.gworks.richedittext.markups.Italic
-import com.gworks.richedittext.markups.Link
-import com.gworks.richedittext.markups.Markup
+import com.gworks.richedittext.markups.*
 import com.gworks.richedittext.widget.RichEditText
 
 
@@ -40,23 +39,27 @@ class MainActivity : AppCompatActivity() {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         editText = findViewById(R.id.editText)
         val layout = findViewById<LinearLayout>(R.id.buttonLayout)
-        layout.addView(newMarkupButton("Bold", Bold::class.java))
-        layout.addView(newMarkupButton("Italics", Italic::class.java))
-//        layout.addView(newMarkupButton("Link", Link::class.java))
+
+        layout.addView(newMarkupButton("Bold", { editText.onMarkupClicked(Bold::class.java, null) }))
+        layout.addView(newMarkupButton("Italic", { editText.onMarkupClicked(Italic::class.java, null) }))
+        layout.addView(newMarkupButton("Underline", { editText.onMarkupClicked(Underline::class.java, null) }))
+        layout.addView(newMarkupButton("Link", { editText.onMarkupClicked(Link::class.java, "www.google.com") }))
+        layout.addView(newMarkupButton("OList", { editText.onParagraphMarkupClicked(OList::class.java, OList.Attributes(50, Color.DKGRAY, ".")) }))
+        layout.addView(newMarkupButton("UList", { editText.onParagraphMarkupClicked(UList::class.java, UList.Attributes(50, Color.DKGRAY)) }))
+        layout.addView(newMarkupButton("Font", { editText.onMarkupClicked(Font::class.java, null) }))
 
         val textView = findViewById<TextView>(R.id.textView)
 
         val button = findViewById<Button>(R.id.button)
-        button.setOnClickListener({textView.text = editText.getHtml()})
+        button.setOnClickListener({ textView.text = editText.getHtml() })
 //        editText.setHtml("svf<b>efsf</b> fgfgf f<i>df<b>g</i>fg</b>")
 //        editText.setHtml("svf<b>efsf</b> fgfgf f<i>df<b>g</i>fg</b>")
     }
 
-    private fun newMarkupButton(label: String, mId: Class<out Markup>): Button {
+    private fun newMarkupButton(label: String, listener: (View) -> (Unit)): Button {
         val b = Button(this)
         b.text = label
-        b.tag = mId
-        b.setOnClickListener { editText.onMarkupClicked(it.tag as Class<out Markup>,null) }
+        b.setOnClickListener(listener)
         return b
     }
 }

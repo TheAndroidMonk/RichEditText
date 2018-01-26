@@ -20,7 +20,6 @@ import android.text.Editable
 import android.text.Spanned
 import android.text.TextWatcher
 import android.widget.EditText
-import com.gworks.richedittext.converters.createMarkup
 import com.gworks.richedittext.converters.indexOf
 import com.gworks.richedittext.converters.leftIndexOf
 import com.gworks.richedittext.markups.AttributedMarkup
@@ -44,8 +43,6 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
      * Applies the given markup in the current selection.
      *
      * @param markup markup to apply
-     * @param from inclusive
-     * @param to exclusive
      */
     fun applyInSelection(markup: Markup) {
         applyInRange(markup, richTextView.selectionStart, richTextView.selectionEnd)
