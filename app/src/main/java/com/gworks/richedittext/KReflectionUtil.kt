@@ -15,12 +15,10 @@ internal fun createMarkup(type: Class<out Markup>, attr: Any?): Markup {
 }
 
 internal fun <T : Any> createMarkup(type: Class<out Markup>, attributeConverter: AttributeConverter<T>, attr: T): Markup {
-    val converterType = attributeConverter::class.createType()
-    val attrType = attr::class.createType()
+    val converterType = AttributeConverter::class
     val constructor = type.kotlin.constructors.firstOrNull {
         it.parameters.size == 2
-                && it.parameters[0].type == converterType
-                && it.parameters[1].type == attrType
+                && it.parameters[0].type.classifier == converterType
     }
-    return constructor?.call(attr) ?: ReflectionUtil.createMarkup(type, attributeConverter, attr)
+    return constructor?.call(attributeConverter, attr) ?: ReflectionUtil.createMarkup(type, attributeConverter, attr)
 }

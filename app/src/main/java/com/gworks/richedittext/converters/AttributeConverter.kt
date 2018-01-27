@@ -16,10 +16,7 @@
 
 package com.gworks.richedittext.converters
 
-import com.gworks.richedittext.markups.Font
-import com.gworks.richedittext.markups.ListItem
-import com.gworks.richedittext.markups.OList
-import com.gworks.richedittext.markups.UList
+import com.gworks.richedittext.markups.*
 
 interface AttributeConverter<T> {
 
@@ -42,6 +39,10 @@ interface AttributeConverter<T> {
     }
 
     fun convertListItemAttribute(attr: T): ListItem.Attributes? {
+        return null
+    }
+
+    fun convertParagraphAttribute(attr: T): Paragraph.Attributes? {
         return null
     }
 

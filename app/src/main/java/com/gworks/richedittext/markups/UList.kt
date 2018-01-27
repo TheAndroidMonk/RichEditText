@@ -31,6 +31,6 @@ class UList(attributes: Attributes) : List<UList.Attributes>(attributes) {
         return ListItem(attributes)
     }
 
-    class Attributes(gapWidth: Int, color: Int) : ListItem.Attributes(false, gapWidth, color)
+    class Attributes(margin: Int, color: Int) : ListItem.Attributes(false, margin, color)
 }
 

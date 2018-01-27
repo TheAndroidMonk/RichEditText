@@ -47,13 +47,19 @@ class MainActivity : AppCompatActivity() {
         layout.addView(newMarkupButton("OList", { editText.onParagraphMarkupClicked(OList::class.java, OList.Attributes(50, Color.DKGRAY, ".")) }))
         layout.addView(newMarkupButton("UList", { editText.onParagraphMarkupClicked(UList::class.java, UList.Attributes(50, Color.DKGRAY)) }))
         layout.addView(newMarkupButton("Font", { editText.onMarkupClicked(Font::class.java, null) }))
+        layout.addView(newMarkupButton("Sub", { editText.onMarkupClicked(Subscript::class.java, null) }))
+        layout.addView(newMarkupButton("Sup", { editText.onMarkupClicked(Superscript::class.java, null) }))
+        layout.addView(newMarkupButton("Strike", { editText.onMarkupClicked(Strikethrough::class.java, null) }))
 
         val textView = findViewById<TextView>(R.id.textView)
 
         val button = findViewById<Button>(R.id.button)
         button.setOnClickListener({ textView.text = editText.getHtml() })
-//        editText.setHtml("svf<b>efsf</b> fgfgf f<i>df<b>g</i>fg</b>")
-//        editText.setHtml("svf<b>efsf</b> fgfgf f<i>df<b>g</i>fg</b>")
+//        editText.setHtml("svf<b>efsf</b> fgfgf f<i>df<b>g</i>fg</b>\n<p align=\"center\">This is a new paragraph. hchcghv ghgv jhhb" +
+//                "hjjhhb ygyghjb hjjhb bjb gvguih hgh</p>\nrtetgf" +
+//                "fgfgf gtfdg fgdfg fgfghfg dfhfgh dghfghfg dgfg")
+
+        editText.setHtml("svf<i>efsf</i> f<b>gfg</b>f f<i>df<b>g</i>fg</b>")
     }
 
     private fun newMarkupButton(label: String, listener: (View) -> (Unit)): Button {

@@ -16,20 +16,14 @@
 
 package com.gworks.richedittext.markups
 
-import android.text.Spannable
-import com.gworks.richedittext.updateSpanFlags
+import android.text.style.SubscriptSpan
+import com.gworks.richedittext.converters.MarkupConverter
 
-abstract class SingleSpanAttributedMarkup<ATTR>(val span: Any, attributes: ATTR) : AttributedMarkup<ATTR>(attributes) {
+class Subscript : SingleSpanMarkup(SubscriptSpan()) {
 
-    override fun apply(text: Spannable, from: Int, to: Int, flags: Int) {
-        text.setSpan(span, from, to, flags)
+    override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
+        converter.convertMarkup(sb, offset, this, begin)
     }
 
-    override fun remove(text: Spannable) {
-        text.removeSpan(span)
-    }
-
-    override fun updateSpanFlags(text: Spannable, flags: Int) {
-        updateSpanFlags(text, span, flags)
-    }
 }
+

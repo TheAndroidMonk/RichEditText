@@ -16,72 +16,102 @@
 
 package com.gworks.richedittext.converters
 
+import android.graphics.Paint
+import android.text.Layout
 import com.gworks.richedittext.markups.*
 
 class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?) : MarkupConverter {
 
-    override fun convertMarkup(sb: StringBuilder, offset: Int, boldMarkup: Bold, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(name = BOLD, begin = begin))
-        return true
+    override fun convertMarkup(out: StringBuilder, offset: Int, subscriptMarkup: Subscript, begin: Boolean) {
+        out.insert(offset, makeTag(SUB, begin))
     }
 
-    override fun convertMarkup(sb: StringBuilder, offset: Int, italicMarkup: Italic, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(name = ITALIC, begin = begin))
-        return true
+    override fun convertMarkup(out: StringBuilder, offset: Int, superscript: Superscript, begin: Boolean) {
+        out.insert(offset, makeTag(SUP, begin))
     }
 
-    override fun convertMarkup(sb: StringBuilder, offset: Int, underlineMarkup: Underline, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(name = UNDERLINE, begin = begin))
-        return true
+    override fun convertMarkup(out: StringBuilder, offset: Int, bold: Bold, begin: Boolean) {
+        out.insert(offset, makeTag(BOLD, begin))
     }
 
-    override fun convertMarkup(sb: StringBuilder, offset: Int, uList: UList, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(name = UL, begin = begin))
-        return true
+    override fun convertMarkup(out: StringBuilder, offset: Int, italic: Italic, begin: Boolean) {
+        out.insert(offset, makeTag(ITALIC, begin))
     }
 
-    override fun convertMarkup(sb: StringBuilder, offset: Int, oList: OList, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(name = OL, begin = begin))
-        return true
+    override fun convertMarkup(out: StringBuilder, offset: Int, underline: Underline, begin: Boolean) {
+        out.insert(offset, makeTag(UNDERLINE, begin))
     }
 
-    override fun convertMarkup(sb: StringBuilder, offset: Int, listItem: ListItem, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(name = LI, begin = begin))
-        return true
+    override fun convertMarkup(out: StringBuilder, offset: Int, strikethrough: Strikethrough, begin: Boolean) {
+        out.insert(offset, makeTag(STRIKE, begin))
     }
 
-    override fun convertMarkup(sb: StringBuilder, offset: Int, linkMarkup: Link, begin: Boolean): Boolean {
-        sb.insert(offset, makeTag(name = LINK, begin = begin, attrs = ATTR_HREF + "=" + linkMarkup.attributes))
-        return true
+    override fun convertMarkup(out: StringBuilder, offset: Int, uList: UList, begin: Boolean) {
+        out.insert(offset, makeTag(UL, begin))
+    }
+
+    override fun convertMarkup(out: StringBuilder, offset: Int, oList: OList, begin: Boolean) {
+        out.insert(offset, makeTag(OL, begin))
+    }
+
+    override fun convertMarkup(out: StringBuilder, offset: Int, listItem: ListItem, begin: Boolean) {
+        out.insert(offset, makeTag(LI, begin))
+    }
+
+    override fun convertMarkup(out: StringBuilder, offset: Int, link: Link, begin: Boolean) {
+        out.insert(offset, makeTag(LINK, begin, ATTR_HREF + "=" + link.attributes))
+    }
+
+    override fun convertMarkup(out: StringBuilder, offset: Int, paragraph: Paragraph, begin: Boolean) {
+        out.insert(offset, makeTag(P, begin, ATTR_ALIGN + "=" +
+                when (paragraph.attributes.align) {
+                    Layout.Alignment.ALIGN_NORMAL -> VAL_LEFT
+                    Layout.Alignment.ALIGN_OPPOSITE -> VAL_RIGHT
+                    Layout.Alignment.ALIGN_CENTER -> VAL_CENTER
+                }))
+    }
+
+    override fun convertMarkup(out: StringBuilder, offset: Int, font: Font, begin: Boolean) {
+        // TODO add impl
+        super.convertMarkup(out, offset, font, begin)
     }
 
     companion object {
 
-        val H1 = "h1"
-        val H2 = "h2"
-        val H3 = "h3"
-        val H4 = "h4"
-        val BOLD = "b"
-        val ITALIC = "i"
-        val UNDERLINE = "u"
-        val LINK = "a"
-        val SPAN = "span"
-        val LI = "li"
-        val OL = "ol"
-        val UL = "ul"
+        const val H1 = "h1"
+        const val H2 = "h2"
+        const val H3 = "h3"
+        const val H4 = "h4"
+        const val BOLD = "b"
+        const val ITALIC = "i"
+        const val UNDERLINE = "u"
+        const val LINK = "a"
+        const val SPAN = "span"
+        const val LI = "li"
+        const val OL = "ol"
+        const val UL = "ul"
+        const val SUB = "sub"
+        const val SUP = "sup"
+        const val STRIKE = "strike"
+        const val P = "p"
 
-        val ATTR_SRC = "src"
-        val ATTR_HREF = "href"
-        val ATTR_SIZE = "size"
-        val ATTR_FONT = "font"
-        val ATTR_COLOR = "color"
+        const val ATTR_SRC = "src"
+        const val ATTR_HREF = "href"
+        const val ATTR_SIZE = "size"
+        const val ATTR_FONT = "font"
+        const val ATTR_COLOR = "color"
+        const val ATTR_ALIGN = "align"
 
-        private val LT = "<"
-        private val _LT = "</"
-        private val GT = ">"
-        private val _GT = "/>"
+        const val VAL_LEFT = "left"
+        const val VAL_RIGHT = "right"
+        const val VAL_CENTER = "center"
 
-        private fun makeTag(name: String, begin: Boolean, attrs: String = ""): CharSequence {
+        private const val LT = "<"
+        private const val _LT = "</"
+        private const val GT = ">"
+        private const val _GT = "/>"
+
+        fun makeTag(name: String, begin: Boolean, attrs: String = ""): CharSequence {
             sb.setLength(0) // We are reusing the instance; reset it first.
             sb.append(if (begin) LT else _LT)
             sb.append(name)

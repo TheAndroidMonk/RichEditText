@@ -17,9 +17,9 @@
 package com.gworks.richedittext.markups
 
 import android.text.Spannable
-import com.gworks.richedittext.converters.updateSpanFlags
+import com.gworks.richedittext.updateSpanFlags
 
-abstract class SingleSpanMarkup(val span:Any) : Markup() {
+abstract class SingleSpanMarkup(val span: Any) : Markup() {
 
     override val isSplittable: Boolean
         get() = true

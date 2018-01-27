@@ -18,7 +18,7 @@ package com.gworks.richedittext.markups
 import android.text.Spannable
 import android.text.Spanned
 import com.gworks.richedittext.converters.MarkupConverter
-import com.gworks.richedittext.converters.updateSpanFlags
+import com.gworks.richedittext.updateSpanFlags
 
 abstract class Markup {
 
@@ -76,13 +76,13 @@ abstract class Markup {
      * @param to to exclusive
      * @param flags
      */
-    abstract protected fun apply(text: Spannable, from: Int, to: Int, flags: Int)
+    protected abstract fun apply(text: Spannable, from: Int, to: Int, flags: Int)
 
     /**
      * Removes this markup from the given text.
      */
-    abstract protected fun remove(text: Spannable)
+    protected abstract fun remove(text: Spannable)
 
-    abstract protected fun updateSpanFlags(text: Spannable, flags: Int)
+    protected abstract fun updateSpanFlags(text: Spannable, flags: Int)
 }
 

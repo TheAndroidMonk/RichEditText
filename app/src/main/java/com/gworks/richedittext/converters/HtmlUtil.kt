@@ -1,7 +1,6 @@
 package com.gworks.richedittext.converters
 
 import android.text.Editable
-import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import com.gworks.richedittext.markups.*
@@ -11,10 +10,6 @@ import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
 import org.xml.sax.helpers.XMLReaderFactory
 import java.io.StringReader
-
-fun updateSpanFlags(text: Spannable, span: Any?, flags: Int) {
-    text.setSpan(span, text.getSpanStart(span), text.getSpanEnd(span), flags)
-}
 
 typealias MarkupFactory = (String) -> Class<out Markup>?
 
@@ -26,25 +21,15 @@ val defaultMarkupFactory: MarkupFactory = { tag ->
         HtmlConverter.UNDERLINE -> Underline::class.java
         HtmlConverter.LINK -> Link::class.java
         HtmlConverter.SPAN -> Font::class.java
+        HtmlConverter.STRIKE -> Strikethrough::class.java
+        HtmlConverter.SUB -> Subscript::class.java
+        HtmlConverter.SUP -> Superscript::class.java
+        HtmlConverter.OL -> OList::class.java
+        HtmlConverter.UL -> UList::class.java
+        HtmlConverter.P -> Paragraph::class.java
         else -> null
     }
 
-}
-
-fun CharSequence.indexOf(char: Char, start: Int = 0, limit: Int = this.length, ignoreCase: Boolean = false) : Int {
-    val result = indexOf(char, start, ignoreCase)
-    return if (result >= 0) minOf(result, limit) else limit
-}
-
-fun CharSequence.leftIndexOf(char: Char, start: Int = this.length, limit: Int = 0) : Int {
-    var st = 0
-    for (i in minOf(this.length - 1, start) downTo limit) {
-        if (this[i] == char) {
-            st = i
-            break
-        }
-    }
-    return st
 }
 
 fun toHtml(text: Spanned, unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler? = null): String {

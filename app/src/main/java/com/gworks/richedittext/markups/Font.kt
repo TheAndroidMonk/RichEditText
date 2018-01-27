@@ -22,24 +22,18 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import com.gworks.richedittext.converters.AttributeConverter
 import com.gworks.richedittext.converters.MarkupConverter
-import com.gworks.richedittext.converters.updateSpanFlags
+import com.gworks.richedittext.updateSpanFlags
 
 class Font(attributes: Attributes) : AttributedMarkup<Font.Attributes>(attributes) {
 
-    private val typefaceSpan: TypefaceSpan
-    private val sizeSpan: AbsoluteSizeSpan
-    private val colorSpan: ForegroundColorSpan
+    private val typefaceSpan = TypefaceSpan(attributes.typeface)
+    private val sizeSpan = AbsoluteSizeSpan(attributes.size, true)
+    private val colorSpan = ForegroundColorSpan(attributes.color)
 
     override val isSplittable: Boolean
         get() = true
 
     constructor(converter: AttributeConverter<Any>, attr: Any) : this(converter.convertFontAttribute(attr)!!)
-
-    init {
-        typefaceSpan = TypefaceSpan(attributes.typeface)
-        sizeSpan = AbsoluteSizeSpan(attributes.size, true)
-        colorSpan = ForegroundColorSpan(attributes.color)
-    }
 
     override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, offset, this, begin)

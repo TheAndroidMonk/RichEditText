@@ -22,43 +22,35 @@ interface MarkupConverter {
 
     val unknownMarkupHandler: UnknownMarkupHandler?
 
-    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, boldMarkup: Bold, begin: Boolean): Boolean {
-        return false
-    }
+    fun convertMarkup(out: StringBuilder, offset: Int, bold: Bold, begin: Boolean) {}
 
-    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, italicMarkup: Italic, begin: Boolean): Boolean {
-        return false
-    }
+    fun convertMarkup(out: StringBuilder, offset: Int, italic: Italic, begin: Boolean) {}
 
-    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, underlineMarkup: Underline, begin: Boolean): Boolean {
-        return false
-    }
+    fun convertMarkup(out: StringBuilder, offset: Int, underline: Underline, begin: Boolean) {}
 
-    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, fontMarkup: Font, begin: Boolean): Boolean {
-        return false
-    }
+    fun convertMarkup(out: StringBuilder, offset: Int, strikethrough: Strikethrough, begin: Boolean) {}
 
-    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, linkMarkup: Link, begin: Boolean): Boolean {
-        return false
-    }
+    fun convertMarkup(out: StringBuilder, offset: Int, font: Font, begin: Boolean) {}
 
-    fun convertMarkup(sb: StringBuilder, offset: Int, uList: UList, begin: Boolean): Boolean {
-        return false
-    }
+    fun convertMarkup(out: StringBuilder, offset: Int, link: Link, begin: Boolean) {}
 
-    fun convertMarkup(sb: StringBuilder, offset: Int, oList: OList, begin: Boolean): Boolean {
-        return false
-    }
+    fun convertMarkup(out: StringBuilder, offset: Int, subscriptMarkup: Subscript, begin: Boolean) {}
 
-    fun convertMarkup(sb: StringBuilder, offset: Int, listItem: ListItem, begin: Boolean): Boolean {
-        return false
-    }
+    fun convertMarkup(out: StringBuilder, offset: Int, superscript: Superscript, begin: Boolean) {}
 
-    fun convertMarkup(sb: StringBuilder, offset: Int = sb.length, markup: Markup, begin: Boolean): Boolean {
-        return unknownMarkupHandler?.handleMarkup(sb, offset, markup, begin) ?: false
+    fun convertMarkup(out: StringBuilder, offset: Int, uList: UList, begin: Boolean) {}
+
+    fun convertMarkup(out: StringBuilder, offset: Int, oList: OList, begin: Boolean) {}
+
+    fun convertMarkup(out: StringBuilder, offset: Int, listItem: ListItem, begin: Boolean) {}
+
+    fun convertMarkup(out: StringBuilder, offset: Int, paragraph: Paragraph, begin: Boolean) {}
+
+    fun convertMarkup(out: StringBuilder, offset: Int, markup: Markup, begin: Boolean) {
+        unknownMarkupHandler?.handleMarkup(out, offset, markup, begin)
     }
 
     interface UnknownMarkupHandler {
-        fun handleMarkup(sb: StringBuilder, offset: Int = sb.length, markup: Markup, begin: Boolean): Boolean
+        fun handleMarkup(out: StringBuilder, offset: Int, markup: Markup, begin: Boolean)
     }
 }

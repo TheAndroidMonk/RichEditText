@@ -16,12 +16,8 @@
 
 package com.gworks.richedittext
 
-import android.text.Editable
-import android.text.Spanned
-import android.text.TextWatcher
+import android.text.*
 import android.widget.EditText
-import com.gworks.richedittext.converters.indexOf
-import com.gworks.richedittext.converters.leftIndexOf
 import com.gworks.richedittext.markups.AttributedMarkup
 import com.gworks.richedittext.markups.Markup
 
@@ -158,7 +154,7 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
             }
         }
         // Attributed markups are updated (reapplied) hence always check them.
-        if (!toggled /*value != null && AttributedMarkup::class.javaObjectType.isAssignableFrom(markupType) ||*/)
+        if (!toggled || value != null && isAttributed(markupType))
             applyInRange(markupType, value, start, end)
     }
 
@@ -187,7 +183,7 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
         private const val REPLACE = 1
         private const val DELETE = 2
 
-        class MyWatcher(val richTexter: RichTexter) : TextWatcher {
+        private class MyWatcher(val richTexter: RichTexter) : TextWatcher {
 
             private var operation = NONE
             private var start = -1
@@ -219,12 +215,12 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
                 if (operation == INSERT || operation == REPLACE) {
 
                     val spans = richTexter.getAppliedMarkupsInRange(start, start)
-                    spans.forEach({
+                    for(it in spans){
                         if (s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
                             it.removeInternal(s)
                             it.applyInternal(s, start, start + after, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                         }
-                    })
+                    }
 
                     // Mark the operation as completed; along with the first stmt of
                     // beforeTextChanged() this prevents the infinite loop.
@@ -232,5 +228,6 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
                 }
             }
         }
+
     }
 }

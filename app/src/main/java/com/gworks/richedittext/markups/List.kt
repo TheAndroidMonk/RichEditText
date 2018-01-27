@@ -16,8 +16,7 @@
 package com.gworks.richedittext.markups
 
 import android.text.Spannable
-import android.text.Spanned
-import com.gworks.richedittext.converters.indexOf
+import com.gworks.richedittext.indexOf
 import java.util.*
 
 abstract class List<ATTR>(attributes: ATTR) : AttributedMarkup<ATTR>(attributes) {
