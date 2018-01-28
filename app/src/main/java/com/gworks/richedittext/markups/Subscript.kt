@@ -25,5 +25,8 @@ class Subscript : SingleSpanMarkup(SubscriptSpan()) {
         converter.convertMarkup(sb, offset, this, begin)
     }
 
+    override fun canExistWith(anotherType: Class<out Markup>): Boolean {
+        return anotherType != this::class.java && anotherType != Superscript::class.java
+    }
 }
 

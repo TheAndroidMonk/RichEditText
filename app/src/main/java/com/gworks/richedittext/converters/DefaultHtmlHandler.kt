@@ -41,9 +41,4 @@ open class DefaultHtmlHandler(private val editable: Editable,
                 editable.append(ch[i])
     }
 
-    override fun endDocument() {
-        val spans = editable.getSpans(0, editable.length, Markup::class.java)
-        spans.forEach { it.updateSpanFlagsInternal(editable, Spanned.SPAN_EXCLUSIVE_INCLUSIVE) }
-    }
-
 }

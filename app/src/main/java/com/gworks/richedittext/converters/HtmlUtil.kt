@@ -74,10 +74,16 @@ fun fromHtml(html: String,
              unknownTagHandler: UnknownTagHandler? = null,
              attributeConverter: AttributeConverter<Attributes> = HtmlAttributeConverter(),
              xmlReader: XMLReader = XMLReaderFactory.createXMLReader("org.ccil.cowan.tagsoup.Parser"),
-             contentHandler: ContentHandler? = null): Spanned {
+             contentHandler: ContentHandler? = null,
+             enableContinuousEditing: Boolean = true): Spanned {
     val sb = SpannableStringBuilder()
-    xmlReader.contentHandler = contentHandler ?: DefaultHtmlHandler(sb, markupFactory, unknownTagHandler, attributeConverter)
+    xmlReader.contentHandler = contentHandler ?:
+            DefaultHtmlHandler(sb, markupFactory, unknownTagHandler, attributeConverter)
     xmlReader.parse(InputSource(StringReader(html)))
+    if (enableContinuousEditing) {
+        val spans = sb.getSpans(0, sb.length, Markup::class.java)
+        spans.forEach { it.updateSpanFlagsInternal(sb, Spanned.SPAN_EXCLUSIVE_INCLUSIVE) }
+    }
     return sb
 }
 

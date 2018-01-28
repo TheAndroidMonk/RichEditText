@@ -18,13 +18,21 @@ package com.gworks.richedittext
 
 import android.text.*
 import android.widget.EditText
+import com.gworks.richedittext.converters.MarkupFactory
+import com.gworks.richedittext.converters.UnknownTagHandler
+import com.gworks.richedittext.converters.fromHtml
 import com.gworks.richedittext.markups.AttributedMarkup
 import com.gworks.richedittext.markups.Markup
 
-class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextView) {
+class RichEditTexter(override val richTextView: EditText,
+                     val enableContinuousEditing: Boolean = true) : RichTexter(richTextView) {
 
     init {
         richTextView.addTextChangedListener(MyWatcher(this))
+    }
+
+    override fun setHtml(html: String, markupFactory: MarkupFactory, unknownTagHandler: UnknownTagHandler?) {
+        richTextView.setText(fromHtml(html, markupFactory, unknownTagHandler, enableContinuousEditing = enableContinuousEditing))
     }
 
     fun applyInSelection(markupType: Class<out Markup>, value: Any?) {
@@ -52,15 +60,22 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
      * @param to exclusive
      */
     fun applyInRange(markup: Markup, from: Int, to: Int,
-                     flags: Int = if (from == to) Spanned.SPAN_MARK_MARK else Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
-        markup.applyInternal(richTextView.text, from, to, flags)
+                     flags: Int = getSpanFlag(from, to)) {
+//        if (!enableContinuousEditing || to > from)
+            markup.applyInternal(richTextView.text, from, to, flags)
     }
 
-    fun remove(markupType: Class<out Markup>) {
-        remove(markupType, richTextView.selectionStart, richTextView.selectionEnd)
+
+    internal fun getSpanFlag(from: Int, to: Int) : Int{
+        if (!enableContinuousEditing) return Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        return if (from == to) Spanned.SPAN_MARK_MARK else Spanned.SPAN_EXCLUSIVE_INCLUSIVE
     }
 
-    fun remove(markupType: Class<out Markup>, from: Int, to: Int) {
+    fun removeInSelection(markupType: Class<out Markup>) {
+        removeInRange(markupType, richTextView.selectionStart, richTextView.selectionEnd)
+    }
+
+    fun removeInRange(markupType: Class<out Markup>, from: Int, to: Int) {
         getAppliedMarkupsInRange(from, to).forEach {
             if (it.javaClass == markupType)
                 removeInternal(it, from, to)
@@ -73,7 +88,7 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
      * @param from inclusive
      * @param to exclusive
      */
-    fun removeAll(from: Int, to: Int) {
+    fun removeAllInRange(from: Int, to: Int) {
         getAppliedMarkupsInRange(from, to).forEach {
             removeInternal(it, from, to)
         }
@@ -84,7 +99,7 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
      * given range the markup is retained in the outer region if the markup is splittable.
      * Otherwise the markup is removed entirely.
      *
-     * @param markup markup to remove
+     * @param markup markup to removeInSelection
      * @param from inclusive
      * @param to exclusive
      */
@@ -101,7 +116,7 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
                 // Capture the flag before removing to "toggle" if necessary.
                 val oldFlag = text.getSpanFlags(markup)
 
-                // First remove and reapply if splittable.
+                // First removeInSelection and reapply if splittable.
                 markup.removeInternal(text)
 
                 // If the markup is splittable apply in the outer region.
@@ -110,11 +125,13 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
                     var reused = false
                     if (start < from) {
 
-                        // If the selection is zero then "toggle" the flags.
-                        val flag = if (from < to || oldFlag == Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE else Spanned.SPAN_EXCLUSIVE_INCLUSIVE
-                        // The removed markup is reused here.
-                        applyInRange(markup, start, from, flag)
+                        val selectionIsZero = from == to
+                        val alreadyThere = to <= end
+                        // The removed markup is reused in if and else.
+                        if (selectionIsZero && alreadyThere) // If the selection is zero then "toggle" the flags.
+                            applyInRange(markup, start, from, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        else
+                            applyInRange(markup, start, from)
                         reused = true
                     }
                     if (end > to)
@@ -127,11 +144,6 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
                 }
             }
         }
-    }
-
-    fun update(markupType: Class<out Markup>, value: Any?) {
-        remove(markupType)
-        applyInSelection(markupType, value)
     }
 
     /**
@@ -154,7 +166,7 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
             }
         }
         // Attributed markups are updated (reapplied) hence always check them.
-        if (!toggled || value != null && isAttributed(markupType))
+        if (!toggled /*|| value != null && isAttributed(markupType)*/)
             applyInRange(markupType, value, start, end)
     }
 
@@ -183,7 +195,7 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
         private const val REPLACE = 1
         private const val DELETE = 2
 
-        private class MyWatcher(val richTexter: RichTexter) : TextWatcher {
+        private class MyWatcher(val richTexter: RichEditTexter) : TextWatcher {
 
             private var operation = NONE
             private var start = -1
@@ -218,7 +230,7 @@ class RichEditTexter(override val richTextView: EditText) : RichTexter(richTextV
                     for(it in spans){
                         if (s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
                             it.removeInternal(s)
-                            it.applyInternal(s, start, start + after, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                            it.applyInternal(s, start, start + after, richTexter.getSpanFlag(start, start + after))
                         }
                     }
 

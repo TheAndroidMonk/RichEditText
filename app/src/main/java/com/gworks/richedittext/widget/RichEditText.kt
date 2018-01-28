@@ -20,6 +20,8 @@ import android.content.Context
 import android.graphics.Color
 import android.support.v7.widget.AppCompatEditText
 import android.util.AttributeSet
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import com.gworks.richedittext.RichEditTexter
 import com.gworks.richedittext.markups.Markup
 import com.gworks.richedittext.markups.OList
@@ -60,5 +62,9 @@ class RichEditText : AppCompatEditText {
 
     fun setHtml(html: String) {
         manager.setHtml(html)
+    }
+
+    override fun onCreateInputConnection(outAttrs: EditorInfo?): InputConnection {
+        return RichTextInputConnection(manager,this, super.onCreateInputConnection(outAttrs), true)
     }
 }
