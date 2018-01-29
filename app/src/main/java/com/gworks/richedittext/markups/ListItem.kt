@@ -39,6 +39,6 @@ class ListItem(attributes: Attributes) : SingleSpanAttributedMarkup<ListItem.Att
         converter.convertMarkup(sb, offset, this, begin)
     }
 
-    open class Attributes(val ordered: Boolean, val gapWidth: Int, val color: Int, val separator: CharSequence? = null)
+    open class Attributes(val gapWidth: Int, val color: Int? = null, val separator: CharSequence? = ".")
 
 }

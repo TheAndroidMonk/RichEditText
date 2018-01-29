@@ -27,6 +27,8 @@ abstract class Markup {
      */
     abstract val isSplittable: Boolean
 
+    internal var extra: Any? = null
+
     internal open fun applyInternal(text: Spannable, from: Int, to: Int, flags: Int) {
         text.setSpan(this, from, to, flags)
         apply(text, from, to, flags)

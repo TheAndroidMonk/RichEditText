@@ -18,6 +18,7 @@ package com.gworks.richedittext.markups
 
 import android.text.Spannable
 import android.text.style.AbsoluteSizeSpan
+import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import com.gworks.richedittext.converters.AttributeConverter
@@ -26,36 +27,50 @@ import com.gworks.richedittext.updateSpanFlags
 
 class Font(attributes: Attributes) : AttributedMarkup<Font.Attributes>(attributes) {
 
-    private val typefaceSpan = TypefaceSpan(attributes.typeface)
-    private val sizeSpan = AbsoluteSizeSpan(attributes.size, true)
-    private val colorSpan = ForegroundColorSpan(attributes.color)
+    private val typefaceSpan: TypefaceSpan?
+    private val sizeSpan: AbsoluteSizeSpan?
+    private val colorSpan: ForegroundColorSpan?
+    private val backgroundSpan: BackgroundColorSpan?
 
     override val isSplittable: Boolean
         get() = true
 
     constructor(converter: AttributeConverter<Any>, attr: Any) : this(converter.convertFontAttribute(attr)!!)
 
+    init {
+        typefaceSpan = if (attributes.typeface != null) TypefaceSpan(attributes.typeface) else null
+        sizeSpan = if (attributes.size != null) AbsoluteSizeSpan(attributes.size, true) else null
+        colorSpan = if (attributes.color != null) ForegroundColorSpan(attributes.color) else null
+        backgroundSpan = if (attributes.backgroundColor != null) BackgroundColorSpan(attributes.backgroundColor) else null
+    }
+
     override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, offset, this, begin)
     }
 
     override fun apply(text: Spannable, from: Int, to: Int, flags: Int) {
-        text.setSpan(typefaceSpan, from, to, flags)
-        text.setSpan(sizeSpan, from, to, flags)
-        text.setSpan(colorSpan, from, to, flags)
+        if (typefaceSpan != null) text.setSpan(typefaceSpan, from, to, flags)
+        if (sizeSpan != null) text.setSpan(sizeSpan, from, to, flags)
+        if (colorSpan != null) text.setSpan(colorSpan, from, to, flags)
+        if (backgroundSpan != null) text.setSpan(backgroundSpan, from, to, flags)
     }
 
     override fun remove(text: Spannable) {
-        text.removeSpan(typefaceSpan)
-        text.removeSpan(sizeSpan)
-        text.removeSpan(colorSpan)
+        if (typefaceSpan != null) text.removeSpan(typefaceSpan)
+        if (sizeSpan != null) text.removeSpan(sizeSpan)
+        if (colorSpan != null) text.removeSpan(colorSpan)
+        if (backgroundSpan != null) text.removeSpan(backgroundSpan)
     }
 
     override fun updateSpanFlags(text: Spannable, flags: Int) {
-        updateSpanFlags(text, typefaceSpan, flags)
-        updateSpanFlags(text, sizeSpan, flags)
-        updateSpanFlags(text, colorSpan, flags)
+        if (typefaceSpan != null) updateSpanFlags(text, typefaceSpan, flags)
+        if (sizeSpan != null) updateSpanFlags(text, sizeSpan, flags)
+        if (colorSpan != null) updateSpanFlags(text, colorSpan, flags)
+        if (backgroundSpan != null) updateSpanFlags(text, backgroundSpan, flags)
     }
 
-    class Attributes(val typeface: String, val size: Int, val color: Int)
+    class Attributes(val typeface: String? = null,
+                     val size: Int? = null,
+                     val color: Int? = null,
+                     val backgroundColor: Int? = null)
 }

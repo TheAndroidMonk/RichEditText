@@ -16,6 +16,6 @@ class Paragraph(attributes: Attributes) : SingleSpanAttributedMarkup<Paragraph.A
         converter.convertMarkup(sb, offset, this, begin)
     }
 
-    open class Attributes(val topSpacing: Int = 0, val bottomSpacing: Int = 0, val align: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL)
+    open class Attributes(val topSpacing: Int? = null, val bottomSpacing: Int? = null, val align: Layout.Alignment? = null)
 
 }

@@ -22,33 +22,19 @@ interface AttributeConverter<T> {
 
     val unknownAttributeConverter: UnknownAttributeConverter<T>?
 
-    fun convertLinkAttribute(attr: T): String? {
-        return null
-    }
+    fun convertLinkAttribute(attr: T): String? = null
 
-    fun convertFontAttribute(attr: T): Font.Attributes? {
-        return null
-    }
+    fun convertFontAttribute(attr: T): Font.Attributes? = null
 
-    fun convertOListAttribute(attr: T): OList.Attributes? {
-        return null
-    }
+    fun convertOListAttribute(attr: T): OList.Attributes? = null
 
-    fun convertUListAttribute(attr: T): UList.Attributes? {
-        return null
-    }
+    fun convertUListAttribute(attr: T): UList.Attributes? = null
 
-    fun convertListItemAttribute(attr: T): ListItem.Attributes? {
-        return null
-    }
+    fun convertListItemAttribute(attr: T): ListItem.Attributes? = null
 
-    fun convertParagraphAttribute(attr: T): Paragraph.Attributes? {
-        return null
-    }
+    fun convertParagraphAttribute(attr: T): Paragraph.Attributes? = null
 
-    fun convertAttribute(attr: T): Any? {
-        return unknownAttributeConverter?.convertAttribute(attr)
-    }
+    fun convertAttribute(attr: T) = unknownAttributeConverter?.convertAttribute(attr)
 
     interface UnknownAttributeConverter<T> {
         fun convertAttribute(attr: T): Any?

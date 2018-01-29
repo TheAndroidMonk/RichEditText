@@ -15,10 +15,12 @@ open class DefaultHtmlHandler(private val editable: Editable,
 
     override fun startElement(uri: String, localName: String, qName: String, attributes: Attributes) {
         val markupType = markupFactory.invoke(qName)
-        if (markupType != null)
-            editable.setSpan(if (!isAttributed(markupType)) markupType.newInstance()
-            else createMarkup(markupType, attributeConverter, attributes), editable.length, editable.length, Spanned.SPAN_MARK_MARK)
-        else
+        if (markupType != null) {
+            val markup = if (!isAttributed(markupType)) markupType.newInstance()
+            else createMarkup(markupType, attributeConverter, attributes)
+            markup.extra = attributes
+            editable.setSpan(markup, editable.length, editable.length, Spanned.SPAN_MARK_MARK)
+        } else
             unknownTagHandler?.handleStartTag(editable, qName, attributes)
     }
 

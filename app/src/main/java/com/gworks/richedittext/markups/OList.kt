@@ -34,6 +34,6 @@ class OList(attributes: Attributes) : List<OList.Attributes>(attributes) {
         listItem.bulletText = (index + 1).toString()
     }
 
-    class Attributes(margin: Int, color: Int, separator: CharSequence? = null) : ListItem.Attributes(true, margin, color, separator)
+    class Attributes(margin: Int, color: Int?, separator: CharSequence? = ".") : ListItem.Attributes(margin, color, separator)
 }
 

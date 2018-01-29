@@ -34,7 +34,7 @@ interface MarkupConverter {
 
     fun convertMarkup(out: StringBuilder, offset: Int, link: Link, begin: Boolean) {}
 
-    fun convertMarkup(out: StringBuilder, offset: Int, subscriptMarkup: Subscript, begin: Boolean) {}
+    fun convertMarkup(out: StringBuilder, offset: Int, subscript: Subscript, begin: Boolean) {}
 
     fun convertMarkup(out: StringBuilder, offset: Int, superscript: Superscript, begin: Boolean) {}
 

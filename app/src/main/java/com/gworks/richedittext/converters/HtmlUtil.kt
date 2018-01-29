@@ -87,6 +87,15 @@ fun fromHtml(html: String,
     return sb
 }
 
+fun Attributes.forEach(consumer: (String, String) -> Unit,
+                       filter: (String) -> Boolean = {true}) {
+    for (it in 0 until this.length) {
+        val name = this.getQName(it)
+        if (filter.invoke(name))
+            consumer.invoke(name, this.getValue(it))
+    }
+}
+
 interface UnknownTagHandler {
 
     fun handleStartTag(out: Editable, qName: String, attributes: Attributes?)
