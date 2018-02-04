@@ -20,6 +20,11 @@ import android.text.Layout
 import com.gworks.richedittext.markups.*
 import org.xml.sax.Attributes
 
+/**
+ * An implementation of [MarkupConverter] which converts android's markups to html.
+ *
+ * @param unknownMarkupHandler the handler to handle unknown markups
+ */
 class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler?) : MarkupConverter {
 
     override fun convertMarkup(out: StringBuilder, offset: Int, subscript: Subscript, begin: Boolean) {
@@ -62,6 +67,22 @@ class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMa
         out.insert(offset, makeTag(LINK, begin, ATTR_HREF + "=" + link.attributes, link.extra as? Attributes, ATTR_HREF))
     }
 
+    override fun convertMarkup(out: StringBuilder, offset: Int, code: Code, begin: Boolean) {
+        out.insert(offset, makeTag(CODE, begin, attributes = code.extra as? Attributes))
+    }
+
+    override fun convertMarkup(out: StringBuilder, offset: Int, codeBlock: CodeBlock, begin: Boolean) {
+        if (begin) {
+            val toInsert = makeTag(PRE, true)
+            out.insert(offset, toInsert)
+            out.insert(offset + toInsert.length, makeTag(CODE, true, attributes = codeBlock.extra as? Attributes))
+        } else {
+            val toInsert = makeTag(CODE, false)
+            out.insert(offset, toInsert)
+            out.insert(offset + toInsert.length, makeTag(PRE, false))
+        }
+    }
+
     override fun convertMarkup(out: StringBuilder, offset: Int, paragraph: Paragraph, begin: Boolean) {
         out.insert(offset, makeTag(P, begin,
                 when (paragraph.attributes.align) {
@@ -73,8 +94,11 @@ class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMa
     }
 
     override fun convertMarkup(out: StringBuilder, offset: Int, font: Font, begin: Boolean) {
-        // TODO add impl
-        super.convertMarkup(out, offset, font, begin)
+        out.insert(offset, makeTag(FONT, begin,
+                ATTR_FACE + "=" + font.attributes.typeface + " "
+                        + ATTR_COLOR + "=" + font.attributes.color + " "
+                        + ATTR_SIZE + "=" + font.attributes.size + " ",
+                font.extra as? Attributes, ATTR_FACE, ATTR_COLOR, ATTR_SIZE))
     }
 
     companion object {
@@ -103,7 +127,6 @@ class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMa
         const val ITALIC = "i"
         const val UNDERLINE = "u"
         const val LINK = "a"
-        const val SPAN = "span"
         const val LI = "li"
         const val OL = "ol"
         const val UL = "ul"
@@ -111,11 +134,14 @@ class HtmlConverter(override val unknownMarkupHandler: MarkupConverter.UnknownMa
         const val SUP = "sup"
         const val STRIKE = "strike"
         const val P = "p"
+        const val CODE = "code"
+        const val PRE = "pre"
+        const val FONT = "font"
 
         const val ATTR_SRC = "src"
         const val ATTR_HREF = "href"
         const val ATTR_SIZE = "size"
-        const val ATTR_FONT = "font"
+        const val ATTR_FACE = "font"
         const val ATTR_COLOR = "color"
         const val ATTR_ALIGN = "align"
 

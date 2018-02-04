@@ -7,14 +7,18 @@ import com.gworks.richedittext.isAttributed
 import com.gworks.richedittext.markups.Markup
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
+import java.util.*
 
 open class DefaultHtmlHandler(private val editable: Editable,
-                              private val markupFactory: MarkupFactory,
+                              private val markupFactory: (String) -> Class<out Markup>?,
                               private val unknownTagHandler: UnknownTagHandler?,
-                              private val attributeConverter: AttributeConverter<Attributes>) : DefaultHandler(){
+                              private val attributeConverter: AttributeConverter<Attributes>) : DefaultHandler() {
+
+    private val openedTags = Stack<String>()
 
     override fun startElement(uri: String, localName: String, qName: String, attributes: Attributes) {
-        val markupType = markupFactory.invoke(qName)
+        openedTags.push(qName)
+        val markupType = markupFactory(qName)
         if (markupType != null) {
             val markup = if (!isAttributed(markupType)) markupType.newInstance()
             else createMarkup(markupType, attributeConverter, attributes)
@@ -25,7 +29,8 @@ open class DefaultHtmlHandler(private val editable: Editable,
     }
 
     override fun endElement(uri: String?, localName: String?, qName: String?) {
-        val markupType = markupFactory.invoke(qName!!)
+        openedTags.pop()
+        val markupType = markupFactory(qName!!)
         if (markupType != null) {
             val spans = editable.getSpans(0, editable.length, markupType)
             if (spans.isNotEmpty()) {

@@ -31,9 +31,9 @@ class OList(attributes: Attributes) : List<OList.Attributes>(attributes) {
     }
 
     override fun setIndex(listItem: ListItem, index: Int) {
-        listItem.bulletText = (index + 1).toString()
+        listItem.bulletText = (index + attributes.startWith).toString()
     }
 
-    class Attributes(margin: Int, color: Int?, separator: CharSequence? = ".") : ListItem.Attributes(margin, color, separator)
+    class Attributes(margin: Int, color: Int?, val startWith :Int = 1, separator: CharSequence? = ".") : ListItem.Attributes(margin, color, separator)
 }
 

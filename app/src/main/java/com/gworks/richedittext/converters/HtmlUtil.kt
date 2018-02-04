@@ -11,22 +11,21 @@ import org.xml.sax.XMLReader
 import org.xml.sax.helpers.XMLReaderFactory
 import java.io.StringReader
 
-typealias MarkupFactory = (String) -> Class<out Markup>?
-
-val defaultMarkupFactory: MarkupFactory = { tag ->
+val defaultMarkupFactory = { tag: String ->
 
     when (tag) {
         HtmlConverter.BOLD -> Bold::class.java
         HtmlConverter.ITALIC -> Italic::class.java
         HtmlConverter.UNDERLINE -> Underline::class.java
         HtmlConverter.LINK -> Link::class.java
-        HtmlConverter.SPAN -> Font::class.java
+        HtmlConverter.FONT -> Font::class.java
         HtmlConverter.STRIKE -> Strikethrough::class.java
         HtmlConverter.SUB -> Subscript::class.java
         HtmlConverter.SUP -> Superscript::class.java
         HtmlConverter.OL -> OList::class.java
         HtmlConverter.UL -> UList::class.java
         HtmlConverter.P -> Paragraph::class.java
+        HtmlConverter.CODE -> Code::class.java
         else -> null
     }
 
@@ -70,7 +69,7 @@ fun toHtml(text: Spanned, unknownMarkupHandler: MarkupConverter.UnknownMarkupHan
 }
 
 fun fromHtml(html: String,
-             markupFactory: MarkupFactory = defaultMarkupFactory,
+             markupFactory: (String) -> Class<out Markup>? = defaultMarkupFactory,
              unknownTagHandler: UnknownTagHandler? = null,
              attributeConverter: AttributeConverter<Attributes> = HtmlAttributeConverter(),
              xmlReader: XMLReader = XMLReaderFactory.createXMLReader("org.ccil.cowan.tagsoup.Parser"),
@@ -87,12 +86,10 @@ fun fromHtml(html: String,
     return sb
 }
 
-fun Attributes.forEach(consumer: (String, String) -> Unit,
-                       filter: (String) -> Boolean = {true}) {
-    for (it in 0 until this.length) {
-        val name = this.getQName(it)
-        if (filter.invoke(name))
-            consumer.invoke(name, this.getValue(it))
+fun Attributes.forEach(consumer: (key: String, value: String) -> Unit, filter: (key: String) -> Boolean = {true}) {
+    for (it in 0 until length) {
+        val name = getQName(it)
+        if (filter(name)) consumer(name, this.getValue(it))
     }
 }
 

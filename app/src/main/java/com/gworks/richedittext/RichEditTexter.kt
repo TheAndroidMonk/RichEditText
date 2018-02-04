@@ -18,7 +18,6 @@ package com.gworks.richedittext
 
 import android.text.*
 import android.widget.EditText
-import com.gworks.richedittext.converters.MarkupFactory
 import com.gworks.richedittext.converters.UnknownTagHandler
 import com.gworks.richedittext.converters.fromHtml
 import com.gworks.richedittext.markups.AttributedMarkup
@@ -31,7 +30,7 @@ class RichEditTexter(override val richTextView: EditText,
         richTextView.addTextChangedListener(MyWatcher(this))
     }
 
-    override fun setHtml(html: String, markupFactory: MarkupFactory, unknownTagHandler: UnknownTagHandler?) {
+    override fun setHtml(html: String, markupFactory: (String) -> Class<out Markup>?, unknownTagHandler: UnknownTagHandler?) {
         richTextView.setText(fromHtml(html, markupFactory, unknownTagHandler, enableContinuousEditing = enableContinuousEditing))
     }
 

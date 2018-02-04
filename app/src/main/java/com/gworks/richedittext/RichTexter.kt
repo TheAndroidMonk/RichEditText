@@ -94,12 +94,14 @@ open class RichTexter(// The text view which acts as rich text view.
         richTextView.text = text
     }
 
+    @JvmOverloads
     fun getHtml(unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler? = null): String {
         return if (richTextView.text !is Spanned) getPlainText()
         else toHtml(richTextView.text as Spanned, unknownMarkupHandler)
     }
 
-    open fun setHtml(html: String, markupFactory: MarkupFactory = defaultMarkupFactory, unknownTagHandler: UnknownTagHandler? = null){
+    @JvmOverloads
+    open fun setHtml(html: String, markupFactory: (String) -> Class<out Markup>? = defaultMarkupFactory, unknownTagHandler: UnknownTagHandler? = null){
         richTextView.text = fromHtml(html, markupFactory, unknownTagHandler, enableContinuousEditing = false)
     }
 }

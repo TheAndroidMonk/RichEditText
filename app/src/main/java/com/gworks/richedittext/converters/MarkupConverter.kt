@@ -18,6 +18,11 @@ package com.gworks.richedittext.converters
 
 import com.gworks.richedittext.markups.*
 
+/**
+ * Visitor which defines methods to convert android markup to any markup language.
+ *
+ * @see HtmlConverter
+ */
 interface MarkupConverter {
 
     val unknownMarkupHandler: UnknownMarkupHandler?
@@ -31,6 +36,10 @@ interface MarkupConverter {
     fun convertMarkup(out: StringBuilder, offset: Int, strikethrough: Strikethrough, begin: Boolean) {}
 
     fun convertMarkup(out: StringBuilder, offset: Int, font: Font, begin: Boolean) {}
+
+    fun convertMarkup(out: StringBuilder, offset: Int, code: Code, begin: Boolean) {}
+
+    fun convertMarkup(out: StringBuilder, offset: Int, codeBlock: CodeBlock, begin: Boolean) {}
 
     fun convertMarkup(out: StringBuilder, offset: Int, link: Link, begin: Boolean) {}
 

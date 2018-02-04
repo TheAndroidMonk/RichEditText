@@ -17,14 +17,16 @@ class ParagraphSpan(val topSpacing: Int? = null, val bottomSpacing: Int? = null,
         val spanned = text as Spanned
         val st = spanned.getSpanStart(this)
         val en = spanned.getSpanEnd(this)
-        if (start == st && topSpacing != null) {
-            originalAscent = fm.ascent
-            originalTop = fm.top
-            fm.ascent -= topSpacing
-            fm.top -= topSpacing
-        } else {
-            fm.ascent = originalAscent
-            fm.top = originalTop
+        if (topSpacing != null) {
+            if (start == st) {
+                originalAscent = fm.ascent
+                originalTop = fm.top
+                fm.ascent -= topSpacing
+                fm.top -= topSpacing
+            } else {
+                fm.ascent = originalAscent
+                fm.top = originalTop
+            }
         }
         if ((end == en || end == en + 1) // paragraph may or may not include \n
                 && bottomSpacing != null) {

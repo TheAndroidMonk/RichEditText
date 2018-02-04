@@ -26,6 +26,10 @@ interface AttributeConverter<T> {
 
     fun convertFontAttribute(attr: T): Font.Attributes? = null
 
+    fun convertCodeAttribute(attr: T): Code.Attributes? = null
+
+    fun convertCodeBlockAttribute(attr: T): CodeBlock.Attributes? = null
+
     fun convertOListAttribute(attr: T): OList.Attributes? = null
 
     fun convertUListAttribute(attr: T): UList.Attributes? = null

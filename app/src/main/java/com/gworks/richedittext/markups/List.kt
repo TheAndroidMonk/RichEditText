@@ -24,15 +24,17 @@ abstract class List<ATTR>(attributes: ATTR) : AttributedMarkup<ATTR>(attributes)
     override val isSplittable: Boolean
         get() = true
 
-    private val listItems = LinkedList<ListItem>()
+    private val listItems = ArrayList<ListItem>()
 
     override fun canExistWith(anotherType: Class<out Markup>): Boolean {
-        return anotherType != OList::class.java && anotherType != UList::class.java
+        return anotherType != OList::class.java
+                && anotherType != UList::class.java
+                && anotherType != CodeBlock::class.java
     }
 
     override fun applyInternal(text: Spannable, from: Int, to: Int, flags: Int) {
         super.applyInternal(text, from, to,
-                if(to == text.length) Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                if (to == text.length) Spannable.SPAN_INCLUSIVE_INCLUSIVE
                 else Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
     }
 

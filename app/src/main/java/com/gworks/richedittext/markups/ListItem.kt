@@ -19,7 +19,7 @@ package com.gworks.richedittext.markups
 import com.gworks.richedittext.converters.AttributeConverter
 import com.gworks.richedittext.converters.MarkupConverter
 
-class ListItem(attributes: Attributes) : SingleSpanAttributedMarkup<ListItem.Attributes>(
+open class ListItem(attributes: Attributes) : SingleSpanAttributedMarkup<ListItem.Attributes>(
         ListItemSpan(attributes.gapWidth, attributes.color, attributes.separator), attributes) {
 
     override val isSplittable: Boolean

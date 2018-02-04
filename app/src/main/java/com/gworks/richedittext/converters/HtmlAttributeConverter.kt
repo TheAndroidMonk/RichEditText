@@ -14,7 +14,7 @@ class HtmlAttributeConverter(override val unknownAttributeConverter: UnknownAttr
     }
 
     override fun convertFontAttribute(attr: Attributes): Font.Attributes? {
-        return Font.Attributes(attr.getValue(HtmlConverter.ATTR_FONT),
+        return Font.Attributes(attr.getValue(HtmlConverter.ATTR_FACE),
                 Integer.parseInt(attr.getValue(HtmlConverter.ATTR_SIZE)),
                 Integer.parseInt(attr.getValue(HtmlConverter.ATTR_COLOR)))
     }

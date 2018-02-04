@@ -13,57 +13,72 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package com.gworks.richedittext.markups
 
+import android.graphics.Typeface
 import android.text.Spannable
-import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
-import android.text.style.TypefaceSpan
 import com.gworks.richedittext.converters.AttributeConverter
 import com.gworks.richedittext.converters.MarkupConverter
 import com.gworks.richedittext.updateSpanFlags
 
-open class Font(attributes: Attributes) : AttributedMarkup<Font.Attributes>(attributes) {
+class CodeBlock(attributes: Attributes) : List<CodeBlock.Attributes>(attributes) {
 
-    private val typefaceSpan = if (attributes.typeface != null) TypefaceSpan(attributes.typeface) else null
-    private val sizeSpan = if (attributes.size != null) AbsoluteSizeSpan(attributes.size, true) else null
-    private val colorSpan = if (attributes.color != null) ForegroundColorSpan(attributes.color) else null
+    private val typefaceSpan = CustomTypefaceSpan(Typeface.MONOSPACE)
+    private val colorSpan = if (attributes.textColor != null) ForegroundColorSpan(attributes.textColor) else null
     private val backgroundSpan = if (attributes.backgroundColor != null) BackgroundColorSpan(attributes.backgroundColor) else null
 
-    override val isSplittable: Boolean
-        get() = true
-
-    constructor(converter: AttributeConverter<Any>, attr: Any) : this(converter.convertFontAttribute(attr)!!)
+    constructor(converter: AttributeConverter<Any>, attr: Any) : this(converter.convertCodeBlockAttribute(attr)!!)
 
     override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, offset, this, begin)
     }
 
+    override fun createListItem(index: Int): ListItem {
+        // Override the ListItem not to apply itself to the text.
+        return object : ListItem(attributes) {
+
+            override fun applyInternal(text: Spannable, from: Int, to: Int, flags: Int) {
+                apply(text, from, to, flags)
+            }
+
+            override fun removeInternal(text: Spannable) {
+                remove(text)
+            }
+
+            override fun updateSpanFlagsInternal(text: Spannable, flags: Int) {
+                updateSpanFlags(text, flags)
+            }
+        }
+    }
+
+    override fun setIndex(listItem: ListItem, index: Int) {
+        listItem.bulletText = if (attributes.needLineNos) (index + attributes.startWith).toString() else ""
+    }
+
     override fun apply(text: Spannable, from: Int, to: Int, flags: Int) {
-        if (typefaceSpan != null) text.setSpan(typefaceSpan, from, to, flags)
-        if (sizeSpan != null) text.setSpan(sizeSpan, from, to, flags)
+        super.apply(text, from, to, flags)
+        text.setSpan(typefaceSpan, from, to, flags)
         if (colorSpan != null) text.setSpan(colorSpan, from, to, flags)
         if (backgroundSpan != null) text.setSpan(backgroundSpan, from, to, flags)
     }
 
     override fun remove(text: Spannable) {
-        if (typefaceSpan != null) text.removeSpan(typefaceSpan)
-        if (sizeSpan != null) text.removeSpan(sizeSpan)
+        super.remove(text)
+        text.removeSpan(typefaceSpan)
         if (colorSpan != null) text.removeSpan(colorSpan)
         if (backgroundSpan != null) text.removeSpan(backgroundSpan)
     }
 
     override fun updateSpanFlags(text: Spannable, flags: Int) {
-        if (typefaceSpan != null) updateSpanFlags(text, typefaceSpan, flags)
-        if (sizeSpan != null) updateSpanFlags(text, sizeSpan, flags)
+        super.updateSpanFlags(text, flags)
+        updateSpanFlags(text, typefaceSpan, flags)
         if (colorSpan != null) updateSpanFlags(text, colorSpan, flags)
         if (backgroundSpan != null) updateSpanFlags(text, backgroundSpan, flags)
     }
 
-    class Attributes(val typeface: String? = null,
-                     val size: Int? = null,
-                     val color: Int? = null,
-                     val backgroundColor: Int? = null)
+    class Attributes(margin: Int, val needLineNos: Boolean = true, val startWith: Int = 1, val textColor: Int? = null, val backgroundColor: Int? =null) :
+            ListItem.Attributes(margin, color = null, separator = null)
 }
+

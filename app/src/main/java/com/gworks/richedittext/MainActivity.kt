@@ -44,12 +44,14 @@ class MainActivity : AppCompatActivity() {
         layout.addView(newMarkupButton("Italic", { editText.onMarkupClicked(Italic::class.java, null) }))
         layout.addView(newMarkupButton("Underline", { editText.onMarkupClicked(Underline::class.java, null) }))
         layout.addView(newMarkupButton("Link", { editText.onMarkupClicked(Link::class.java, "www.google.com") }))
-        layout.addView(newMarkupButton("OList", { editText.onParagraphMarkupClicked(OList::class.java, OList.Attributes(50, Color.DKGRAY, ".")) }))
+        layout.addView(newMarkupButton("OList", { editText.onParagraphMarkupClicked(OList::class.java, OList.Attributes(50, Color.DKGRAY)) }))
         layout.addView(newMarkupButton("UList", { editText.onParagraphMarkupClicked(UList::class.java, UList.Attributes(50, Color.DKGRAY)) }))
         layout.addView(newMarkupButton("Font", { editText.onMarkupClicked(Font::class.java, null) }))
         layout.addView(newMarkupButton("Sub", { editText.onMarkupClicked(Subscript::class.java, null) }))
         layout.addView(newMarkupButton("Sup", { editText.onMarkupClicked(Superscript::class.java, null) }))
         layout.addView(newMarkupButton("Strike", { editText.onMarkupClicked(Strikethrough::class.java, null) }))
+        layout.addView(newMarkupButton("Code", { editText.onMarkupClicked(Code::class.java, Code.Attributes()) }))
+        layout.addView(newMarkupButton("CodeBlock", { editText.onParagraphMarkupClicked(CodeBlock::class.java, CodeBlock.Attributes(50)) }))
 
         val textView = findViewById<TextView>(R.id.textView)
 
@@ -59,7 +61,8 @@ class MainActivity : AppCompatActivity() {
 //                "hjjhhb ygyghjb hjjhb bjb gvguih hgh</p>\nrtetgf" +
 //                "fgfgf gtfdg fgdfg fgfghfg dfhfgh dghfghfg dgfg")
 
-        editText.setHtml("svf<b><i>efsf</i></b>hj f<b>gfg</b>f f<i>df<b>g</i>fg</b>")
+//        editText.setHtml("svf<b><i>efsf</i></b>hj f<b>gfg</b>f f<i>df<b>g</i>fg</b>")
+//        editText.setHtml("<")
     }
 
     private fun newMarkupButton(label: String, listener: (View) -> (Unit)): Button {
