@@ -2,6 +2,8 @@
 
 A library for displaying/editing rich text in Android.
 
+**This framework is under development and may contain bugs and limitations.**
+
 ## Usage
 
 This library provides ready to use widgets, `RichTextView` and `RichEditText`, for diplaying and editing rich text. It also has classes to add rich text feature to any `TextView` or `EditText`.
@@ -28,6 +30,11 @@ Currently supported markups are
 
 _There is no exact analogy between the markups of this framework and html tags. For example Paragraph markup supports top and bottom spacing but html's `<p>` don't. Hence while converting to and from html some styling may be discarded or lost. Sometimes the same markups could be used for different styles. For exampe both the foreground and background color styles are achieved using Font markup._
 
+**Current Limitations**
+
+  * No support for full justification in Paragraph markup.
+  * Ordered and Unordered lists do _not_ automatically add list items when a new-line is entered at the end of the list.
+  
 ## Extension
 
 This framework can be extended to support new markups (which are achievable using Android's spans) with minimal effort. To do so
