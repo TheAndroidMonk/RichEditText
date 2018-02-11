@@ -71,6 +71,18 @@ open class RichTexter(// The text view which acts as rich text view.
         return getAppliedMarkupsInRange(0, richTextView.length())
     }
 
+    //FIXME quick method
+    fun getMarkupFromSelection(markupClass: Class<out Markup>): Markup? {
+
+        val text = richTextView.text
+        if(text is Spanned){
+          val markups = text.getSpans(richTextView.selectionStart, richTextView.selectionEnd,markupClass)
+            if(markups.isNotEmpty())
+                return markups[0]
+        }
+        return null
+    }
+
     /**
      * Returns all the markups applied strictly inside the given range [from, to).
      *
