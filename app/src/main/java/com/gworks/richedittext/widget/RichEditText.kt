@@ -19,6 +19,7 @@ package com.gworks.richedittext.widget
 import android.content.Context
 import android.graphics.Color
 import android.support.v7.widget.AppCompatEditText
+import android.text.InputType
 import android.util.AttributeSet
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -64,7 +65,7 @@ class RichEditText : AppCompatEditText {
         manager.setHtml(html)
     }
 
-    override fun onCreateInputConnection(outAttrs: EditorInfo?): InputConnection {
-        return RichTextInputConnection(manager,this, super.onCreateInputConnection(outAttrs), true)
-    }
+//    override fun onCreateInputConnection(outAttrs: EditorInfo?): InputConnection {
+//        return RichTextInputConnection(manager,this, super.onCreateInputConnection(outAttrs), true)
+//    }
 }

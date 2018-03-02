@@ -35,10 +35,14 @@ abstract class List<ATTR>(attributes: ATTR) : AttributedMarkup<ATTR>(attributes)
     override fun applyInternal(text: Spannable, from: Int, to: Int, flags: Int) {
         super.applyInternal(text, from, to,
                 if (to == text.length) Spannable.SPAN_INCLUSIVE_INCLUSIVE
-                else Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+                else Spannable.SPAN_INCLUSIVE_INCLUSIVE)
     }
 
     override fun apply(text: Spannable, from: Int, to: Int, flags: Int) {
+        apply(text, from, to, flags, false)
+    }
+
+    private fun apply(text: Spannable, from: Int, to: Int, flags: Int, reapply: Boolean) {
         if (text.length == to || text[to - 1] == '\n') {
             var i = from
             var index = 0
@@ -51,14 +55,22 @@ abstract class List<ATTR>(attributes: ATTR) : AttributedMarkup<ATTR>(attributes)
                     listItems.add(listItem)
                 }
                 setIndex(listItem, index)
-                val spanTo = minOf(text.indexOf('\n', i, to) + 1, to)
-                listItem.applyInternal(text, i, spanTo,
-                        if (spanTo == text.length) Spannable.SPAN_INCLUSIVE_INCLUSIVE
-                        else Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-                i = spanTo
+                val spanTo = minOf(text.indexOf('\n', i, to), to)
+//                if (reapply)
+//                    listItem.reApply(text, i, spanTo)
+//                else
+                    listItem.applyInternal(text, i, spanTo,
+                            if (spanTo == text.length) Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                            else Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+                i = spanTo + 1
                 index++
             }
         } else throw IllegalArgumentException("List markup should end with new line")
+    }
+
+    internal fun reApply(text: Spannable, from: Int, to: Int) {
+        remove(text)
+        apply(text, from, to, 0, true)
     }
 
     protected abstract fun createListItem(index: Int): ListItem
@@ -78,4 +90,3 @@ abstract class List<ATTR>(attributes: ATTR) : AttributedMarkup<ATTR>(attributes)
         const val DEFAULT_MARGIN = 50
     }
 }
-

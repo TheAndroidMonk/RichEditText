@@ -16,6 +16,7 @@
 
 package com.gworks.richedittext.markups
 
+import android.text.Spannable
 import com.gworks.richedittext.converters.AttributeConverter
 import com.gworks.richedittext.converters.MarkupConverter
 
@@ -34,6 +35,11 @@ open class ListItem(attributes: Attributes) : SingleSpanAttributedMarkup<ListIte
         }
 
     constructor(converter: AttributeConverter<Any>, attr: Any) : this(converter.convertListItemAttribute(attr)!!)
+
+//    internal fun reApply(text: Spannable, from: Int, to: Int) {
+//        remove(text)
+//        apply(text, from, to, 0)
+//    }
 
     override fun convert(sb: StringBuilder, offset: Int, converter: MarkupConverter, begin: Boolean) {
         converter.convertMarkup(sb, offset, this, begin)

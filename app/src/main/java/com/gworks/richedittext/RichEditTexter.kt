@@ -21,6 +21,7 @@ import android.widget.EditText
 import com.gworks.richedittext.converters.UnknownTagHandler
 import com.gworks.richedittext.converters.fromHtml
 import com.gworks.richedittext.markups.AttributedMarkup
+import com.gworks.richedittext.markups.List
 import com.gworks.richedittext.markups.Markup
 
 class RichEditTexter(override val richTextView: EditText,
@@ -28,6 +29,7 @@ class RichEditTexter(override val richTextView: EditText,
 
     init {
         richTextView.addTextChangedListener(MyWatcher(this))
+        richTextView.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
     }
 
     override fun setHtml(html: String, markupFactory: (String) -> Class<out Markup>?, unknownTagHandler: UnknownTagHandler?) {
@@ -61,11 +63,11 @@ class RichEditTexter(override val richTextView: EditText,
     fun applyInRange(markup: Markup, from: Int, to: Int,
                      flags: Int = getSpanFlag(from, to)) {
 //        if (!enableContinuousEditing || to > from)
-            markup.applyInternal(richTextView.text, from, to, flags)
+        markup.applyInternal(richTextView.text, from, to, flags)
     }
 
 
-    internal fun getSpanFlag(from: Int, to: Int) : Int{
+    internal fun getSpanFlag(from: Int, to: Int): Int {
         if (!enableContinuousEditing) return Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         return if (from == to) Spanned.SPAN_MARK_MARK else Spanned.SPAN_EXCLUSIVE_INCLUSIVE
     }
@@ -194,12 +196,21 @@ class RichEditTexter(override val richTextView: EditText,
         private const val REPLACE = 1
         private const val DELETE = 2
 
+        private fun isVulnerable(markup: Markup, text: Spanned, start: Int, end: Int): Boolean {
+            val f = text.getSpanFlags(markup)
+            return f == Spanned.SPAN_MARK_MARK
+                    || f == Spanned.SPAN_EXCLUSIVE_INCLUSIVE
+                    && end == text.getSpanEnd(markup)
+        }
+
         private class MyWatcher(val richTexter: RichEditTexter) : TextWatcher {
 
             private var operation = NONE
             private var start = -1
             private var before = -1
             private var after = -1
+
+            private var newLineAffected = false
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
 
@@ -215,21 +226,31 @@ class RichEditTexter(override val richTextView: EditText,
                     after == 0 -> DELETE
                     else -> REPLACE
                 }
+
+                // Removing one or more newline from the text
+                newLineAffected = s.indexOf('\n', start, start + count) in start..start + count
             }
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                //TODO need to handle the spans in newly added text
+                // Adding one or more newline to the text
+                newLineAffected = s.indexOf('\n', start, start + count) in start..start + count
             }
 
             override fun afterTextChanged(s: Editable) {
 
-                if (operation == INSERT || operation == REPLACE) {
+                if (operation != NONE) {
 
-                    val spans = richTexter.getAppliedMarkupsInRange(start, start)
-                    for(it in spans){
-                        if (s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
+                    val spans = s.getSpans(start, start + 1, Markup::class.java)
+                    for (it in spans) {
+                        if (it is List<*> && newLineAffected)
+                            it.reApply(s, s.getSpanStart(it), s.getSpanEnd(it))
+                        if (operation != DELETE && s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
                             it.removeInternal(s)
-                            it.applyInternal(s, start, start + after, richTexter.getSpanFlag(start, start + after))
+                            it.applyInternal(s, start, start + after,
+                                    richTexter.getSpanFlag(start, start + after))
+                        }
+                        if (operation == DELETE && s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
+                            it.removeInternal(s)
                         }
                     }
 

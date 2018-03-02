@@ -61,8 +61,8 @@ class MainActivity : AppCompatActivity() {
 //                "hjjhhb ygyghjb hjjhb bjb gvguih hgh</p>\nrtetgf" +
 //                "fgfgf gtfdg fgdfg fgfghfg dfhfgh dghfghfg dgfg")
 
-//        editText.setHtml("svf<b><i>efsf</i></b>hj f<b>gfg</b>f f<i>df<b>g</i>fg</b>")
-//        editText.setHtml("<")
+        editText.setHtml("<b>bold<i>italic</b>ita</i>lic othe<b>r</b> <i>italic</i><b>bold</b>")
+//        editText.setHtml("a b c")
     }
 
     private fun newMarkupButton(label: String, listener: (View) -> (Unit)): Button {
