@@ -16,71 +16,53 @@
 
 package com.gworks.richedittext
 
-import android.text.Spanned
 import android.widget.TextView
 import com.gworks.richedittext.converters.*
 import com.gworks.richedittext.markups.*
-import java.util.*
 
 open class RichTexter(// The text view which acts as rich text view.
         open val richTextView: TextView) {
 
     fun isApplied(markupClass: Class<Markup>): Boolean {
-        return isAppliedInRange(markupClass, 0, richTextView.length())
+        return isApplied(richTextView, markupClass)
     }
 
     fun isAppliedInSelection(markupClass: Class<Markup>): Boolean {
-        return isAppliedInRange(markupClass, richTextView.selectionStart, richTextView.selectionEnd)
+        return isAppliedInSelection(richTextView, markupClass)
     }
 
     fun isAppliedInRange(markupClass: Class<Markup>, from: Int, to: Int): Boolean {
-        val text = richTextView.text
-        return text is Spanned && text.getSpans<Markup>(from, to, markupClass).isNotEmpty()
+        return isAppliedInRange(richTextView, markupClass, from, to)
     }
 
     fun isApplied(markup: Markup): Boolean {
-        val text = richTextView.text
-        return text is Spanned && text.getSpanStart(markup) >= 0
+        return isApplied(richTextView, markup)
     }
 
     fun isAppliedInSelection(markup: Markup): Boolean {
-        return isAppliedInRange(markup, richTextView.selectionStart, richTextView.selectionEnd)
+        return isAppliedInSelection(richTextView, markup)
     }
 
     fun isAppliedInRange(markup: Markup, from: Int, to: Int): Boolean {
-        val text = richTextView.text
-        if (text is Spanned) {
-            val start = text.getSpanStart(markup)
-            val end = text.getSpanEnd(markup)
-            return start > 0 && start >= from && start < to && end > 0 && end > from && end <= to
-        }
-        return false
+        return isAppliedInRange(richTextView, markup, from, to)
     }
 
     /**
      * Returns all the markups applied strictly inside the current selection.
      */
     fun getAppliedMarkupsInSelection(): List<Markup> {
-        return getAppliedMarkupsInRange(richTextView.selectionStart, richTextView.selectionEnd)
+        return getAppliedMarkupsInSelection(richTextView)
     }
 
     /**
      * Returns all the markups applied in this whole text.
      */
     fun getAppliedMarkups(): List<Markup> {
-        return getAppliedMarkupsInRange(0, richTextView.length())
+        return getAppliedMarkups(richTextView)
     }
 
-    //FIXME quick method
     fun getMarkupFromSelection(markupClass: Class<out Markup>): Markup? {
-
-        val text = richTextView.text
-        if(text is Spanned){
-          val markups = text.getSpans(richTextView.selectionStart, richTextView.selectionEnd,markupClass)
-            if(markups.isNotEmpty())
-                return markups[0]
-        }
-        return null
+        return getMarkupFromSelection(richTextView, markupClass)
     }
 
     /**
@@ -90,30 +72,27 @@ open class RichTexter(// The text view which acts as rich text view.
      * @param to to exclusive
      */
     fun getAppliedMarkupsInRange(from: Int, to: Int): List<Markup> {
-        val text = richTextView.text
-        return if (text !is Spanned) emptyList()
-        else Arrays.asList(*text.getSpans(from, to, Markup::class.java))
+        return getAppliedMarkupsInRange(richTextView, from, to)
     }
 
     /**
      * Returns the rich text in the text view as plain text (i.e. String).
      */
     fun getPlainText(): String {
-        return richTextView.text.toString()
+        return getPlainText(richTextView)
     }
 
     fun setPlainText(text: String) {
-        richTextView.text = text
+        setPlainText(richTextView, text)
     }
 
     @JvmOverloads
     fun getHtml(unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler? = null): String {
-        return if (richTextView.text !is Spanned) getPlainText()
-        else toHtml(richTextView.text as Spanned, unknownMarkupHandler)
+        return getHtml(richTextView, unknownMarkupHandler);
     }
 
     @JvmOverloads
     open fun setHtml(html: String, markupFactory: (String) -> Class<out Markup>? = defaultMarkupFactory, unknownTagHandler: UnknownTagHandler? = null){
-        richTextView.text = fromHtml(html, markupFactory, unknownTagHandler, enableContinuousEditing = false)
+        setHtml(richTextView, html, markupFactory, unknownTagHandler)
     }
 }

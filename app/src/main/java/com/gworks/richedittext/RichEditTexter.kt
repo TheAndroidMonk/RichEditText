@@ -20,7 +20,6 @@ import android.text.*
 import android.widget.EditText
 import com.gworks.richedittext.converters.UnknownTagHandler
 import com.gworks.richedittext.converters.fromHtml
-import com.gworks.richedittext.markups.AttributedMarkup
 import com.gworks.richedittext.markups.List
 import com.gworks.richedittext.markups.Markup
 
@@ -37,11 +36,11 @@ class RichEditTexter(override val richTextView: EditText,
     }
 
     fun applyInSelection(markupType: Class<out Markup>, value: Any?) {
-        applyInRange(createMarkup(markupType, value), richTextView.selectionStart, richTextView.selectionEnd)
+        applyInSelection(richTextView, markupType, value, enableContinuousEditing)
     }
 
     fun applyInRange(markupType: Class<out Markup>, value: Any?, from: Int, to: Int) {
-        applyInRange(createMarkup(markupType, value), from, to)
+        applyInRange(richTextView, markupType, value, from, to, enableContinuousEditing)
     }
 
     /**
@@ -50,7 +49,7 @@ class RichEditTexter(override val richTextView: EditText,
      * @param markup markup to apply
      */
     fun applyInSelection(markup: Markup) {
-        applyInRange(markup, richTextView.selectionStart, richTextView.selectionEnd)
+        applyInSelection(richTextView, markup, enableContinuousEditing)
     }
 
     /**
@@ -60,27 +59,16 @@ class RichEditTexter(override val richTextView: EditText,
      * @param from inclusive
      * @param to exclusive
      */
-    fun applyInRange(markup: Markup, from: Int, to: Int,
-                     flags: Int = getSpanFlag(from, to)) {
-//        if (!enableContinuousEditing || to > from)
-        markup.applyInternal(richTextView.text, from, to, flags)
-    }
-
-
-    internal fun getSpanFlag(from: Int, to: Int): Int {
-        if (!enableContinuousEditing) return Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        return if (from == to) Spanned.SPAN_MARK_MARK else Spanned.SPAN_EXCLUSIVE_INCLUSIVE
+    fun applyInRange(markup: Markup, from: Int, to: Int, flags: Int = getSpanFlag(from, to, enableContinuousEditing)) {
+        applyInRange(richTextView, markup, from, to, flags)
     }
 
     fun removeInSelection(markupType: Class<out Markup>) {
-        removeInRange(markupType, richTextView.selectionStart, richTextView.selectionEnd)
+        removeInSelection(richTextView, markupType, enableContinuousEditing)
     }
 
     fun removeInRange(markupType: Class<out Markup>, from: Int, to: Int) {
-        getAppliedMarkupsInRange(from, to).forEach {
-            if (it.javaClass == markupType)
-                removeInternal(it, from, to)
-        }
+        removeInRange(richTextView, markupType, from, to, enableContinuousEditing)
     }
 
     /**
@@ -90,9 +78,7 @@ class RichEditTexter(override val richTextView: EditText,
      * @param to exclusive
      */
     fun removeAllInRange(from: Int, to: Int) {
-        getAppliedMarkupsInRange(from, to).forEach {
-            removeInternal(it, from, to)
-        }
+        removeAllInRange(richTextView, from, to, enableContinuousEditing)
     }
 
     /**
@@ -105,46 +91,7 @@ class RichEditTexter(override val richTextView: EditText,
      * @param to exclusive
      */
     private fun removeInternal(markup: Markup?, from: Int, to: Int) {
-
-        if (markup != null) {
-            val text = richTextView.text
-            val start = markup.getSpanStart(text)
-            val end = markup.getSpanEnd(text)
-
-            // If the markup is really applied in the text.
-            if (start >= 0) {
-
-                // Capture the flag before removing to "toggle" if necessary.
-                val oldFlag = text.getSpanFlags(markup)
-
-                // First removeInSelection and reapply if splittable.
-                markup.removeInternal(text)
-
-                // If the markup is splittable apply in the outer region.
-                if (markup.isSplittable) {
-
-                    var reused = false
-                    if (start < from) {
-
-                        val selectionIsZero = from == to
-                        val alreadyThere = to <= end
-                        // The removed markup is reused in if and else.
-                        if (selectionIsZero && alreadyThere) // If the selection is zero then "toggle" the flags.
-                            applyInRange(markup, start, from, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                        else
-                            applyInRange(markup, start, from)
-                        reused = true
-                    }
-                    if (end > to)
-                    // If not reused above reuse here.
-                        applyInRange(
-                                if (reused) createMarkup(markup.javaClass, (markup as? AttributedMarkup<*>)?.attributes)
-                                else markup,
-                                to, end
-                        )
-                }
-            }
-        }
+        removeInternal(richTextView, markup, from, to, enableContinuousEditing)
     }
 
     /**
@@ -155,53 +102,24 @@ class RichEditTexter(override val richTextView: EditText,
      * @param value
      */
     fun onMarkupMenuClicked(markupType: Class<out Markup>, value: Any?, start: Int, end: Int) {
-
-        var toggled = false
-
-        for (existing in getAppliedMarkupsInRange(start, end)) {
-            if (!existing.canExistWith(markupType)) {
-                removeInternal(existing, start, end)
-                if (existing.javaClass == markupType)
-                // If it can not exist with itself toggle.
-                    toggled = true
-            }
-        }
-        // Attributed markups are updated (reapplied) hence always check them.
-        if (!toggled /*|| value != null && isAttributed(markupType)*/)
-            applyInRange(markupType, value, start, end)
+        onMarkupMenuClicked(richTextView, markupType, value, start, end, enableContinuousEditing)
     }
 
     fun onMarkupMenuClicked(markupType: Class<out Markup>, value: Any?) {
-        onMarkupMenuClicked(markupType, value, richTextView.selectionStart, richTextView.selectionEnd)
+        onMarkupMenuClicked(richTextView, markupType, value, enableContinuousEditing)
     }
 
     fun onParagraphMarkupMenuClicked(markupType: Class<out Markup>, value: Any?) {
-        val text = richTextView.text
-        var st = text.leftIndexOf('\n', richTextView.selectionStart)
-        if (richTextView.selectionStart == richTextView.selectionEnd
-                && richTextView.selectionEnd < text.length
-                && text[richTextView.selectionEnd] == '\n')
-            st = text.leftIndexOf('\n', richTextView.selectionStart - 1)
-        val en = text.indexOf('\n', richTextView.selectionEnd)
-        onMarkupMenuClicked(markupType, value,
-                if (st == 0) 0 else st + 1,
-                if (en == text.length) text.length else en + 1)
+        onParagraphMarkupMenuClicked(richTextView, markupType, value, enableContinuousEditing)
     }
 
-    companion object {
+    private companion object {
 
         // Constants for edit operation in the EditText.
         private const val NONE = -1
         private const val INSERT = 0
         private const val REPLACE = 1
         private const val DELETE = 2
-
-        private fun isVulnerable(markup: Markup, text: Spanned, start: Int, end: Int): Boolean {
-            val f = text.getSpanFlags(markup)
-            return f == Spanned.SPAN_MARK_MARK
-                    || f == Spanned.SPAN_EXCLUSIVE_INCLUSIVE
-                    && end == text.getSpanEnd(markup)
-        }
 
         private class MyWatcher(val richTexter: RichEditTexter) : TextWatcher {
 
@@ -247,7 +165,7 @@ class RichEditTexter(override val richTextView: EditText,
                         if (operation != DELETE && s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
                             it.removeInternal(s)
                             it.applyInternal(s, start, start + after,
-                                    richTexter.getSpanFlag(start, start + after))
+                                    getSpanFlag(start, start + after, richTexter.enableContinuousEditing))
                         }
                         if (operation == DELETE && s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
                             it.removeInternal(s)
