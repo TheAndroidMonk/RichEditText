@@ -8,28 +8,46 @@ import com.gworks.richedittext.markups.AttributedMarkup
 import com.gworks.richedittext.markups.Markup
 import java.util.*
 
+/**
+ * Tells whether the given markup type is applied in the given text view.
+ */
 fun isApplied(richTextView: TextView, markupClass: Class<Markup>): Boolean {
     return isAppliedInRange(richTextView, markupClass, 0, richTextView.length())
 }
 
+/**
+ * Tells whether the given markup type is applied in the given text view's current selection.
+ */
 fun isAppliedInSelection(richTextView: TextView, markupClass: Class<Markup>): Boolean {
     return isAppliedInRange(richTextView, markupClass, richTextView.selectionStart, richTextView.selectionEnd)
 }
 
+/**
+ * Tells whether the given markup type is applied in the given text view in the given range [from, to).
+ */
 fun isAppliedInRange(richTextView: TextView, markupClass: Class<Markup>, from: Int, to: Int): Boolean {
     val text = richTextView.text
     return text is Spanned && text.getSpans<Markup>(from, to, markupClass).isNotEmpty()
 }
 
+/**
+ * Tells whether the given markup is applied in the given text view.
+ */
 fun isApplied(richTextView: TextView, markup: Markup): Boolean {
     val text = richTextView.text
     return text is Spanned && text.getSpanStart(markup) >= 0
 }
 
+/**
+ * Tells whether the given markup is applied in the given text view's current selection.
+ */
 fun isAppliedInSelection(richTextView: TextView, markup: Markup): Boolean {
     return isAppliedInRange(richTextView, markup, richTextView.selectionStart, richTextView.selectionEnd)
 }
 
+/**
+ * Tells whether the given markup is applied in the given text view in the given range [from, to).
+ */
 fun isAppliedInRange(richTextView: TextView, markup: Markup, from: Int, to: Int): Boolean {
     val text = richTextView.text
     if (text is Spanned) {
@@ -41,14 +59,14 @@ fun isAppliedInRange(richTextView: TextView, markup: Markup, from: Int, to: Int)
 }
 
 /**
- * Returns all the markups applied strictly inside the current selection.
+ * Returns all the markups applied **strictly** inside the given text view's current selection.
  */
 fun getAppliedMarkupsInSelection(richTextView: TextView): List<Markup> {
     return getAppliedMarkupsInRange(richTextView, richTextView.selectionStart, richTextView.selectionEnd)
 }
 
 /**
- * Returns all the markups applied in this whole text.
+ * Returns all the markups applied in given text view.
  */
 fun getAppliedMarkups(richTextView: TextView): List<Markup> {
     return getAppliedMarkupsInRange(richTextView, 0, richTextView.length())
@@ -67,7 +85,7 @@ fun getMarkupFromSelection(richTextView: TextView, markupClass: Class<out Markup
 }
 
 /**
- * Returns all the markups applied strictly inside the given range [from, to).
+ * Returns all the markups applied **strictly** inside the given range [from, to) in the text view.
  *
  * @param from from inclusive
  * @param to to exclusive
@@ -85,44 +103,63 @@ fun getPlainText(richTextView: TextView): String {
     return richTextView.text.toString()
 }
 
+/**
+ * Sets the given plain text to the text view.
+ */
 fun setPlainText(richTextView: TextView, text: String) {
     richTextView.text = text
 }
 
+/**
+ * Returns the html equivalent of the rich text in given text view.
+ *
+ * @param unknownMarkupHandler the handler to handle any unknown markups
+ */
 @JvmOverloads
 fun getHtml(richTextView: TextView, unknownMarkupHandler: MarkupConverter.UnknownMarkupHandler? = null): String {
     return if (richTextView.text !is Spanned) getPlainText(richTextView)
     else toHtml(richTextView.text as Spanned, unknownMarkupHandler)
 }
 
+/**
+ * Sets the rich text equivalent of the given html to the text view.
+ *
+ * @param markupFactory a factory which creates a markup for given html tag.
+ * @param unknownTagHandler a handler to handle any unknown html tag.
+ */
 @JvmOverloads
 fun setHtml(richTextView: TextView, html: String, markupFactory: (String) -> Class<out Markup>? = defaultMarkupFactory, unknownTagHandler: UnknownTagHandler? = null){
     richTextView.text = fromHtml(html, markupFactory, unknownTagHandler, enableContinuousEditing = false)
 }
 
+/**
+ * Applies a markup of given markup type to the text view's current selection.
+ *
+ * @param value a value if the markup is AttributedMarkup, pass null otherwise.
+ */
 fun applyInSelection(richTextView: EditText, markupType: Class<out Markup>, value: Any?, enableContinuousEditing: Boolean) {
     applyInRange(richTextView, createMarkup(markupType, value), richTextView.selectionStart, richTextView.selectionEnd, enableContinuousEditing)
 }
 
+/**
+ * Applies a markup of given markup type to the text view in given range [from, to).
+ *
+ * @param value a value if the markup is AttributedMarkup, pass null otherwise.
+ */
 fun applyInRange(richTextView: EditText, markupType: Class<out Markup>, value: Any?, from: Int, to: Int, enableContinuousEditing: Boolean) {
     applyInRange(richTextView, createMarkup(markupType, value), from, to, enableContinuousEditing)
 }
 
+
 /**
- * Applies the given markup in the current selection.
- *
- * @param markup markup to apply
+ * Applies the given markup to the text view's current selection.
  */
 fun applyInSelection(richTextView: EditText, markup: Markup, enableContinuousEditing: Boolean) {
     applyInRange(richTextView, markup, richTextView.selectionStart, richTextView.selectionEnd, enableContinuousEditing)
 }
 
 /**
- * Applies the given markup in the given range.
- *
- * @param markup markup to apply
- * @param from inclusive
- * @param to exclusive
+ * Applies the given markup to the text view in given range [from, to).
  */
 fun applyInRange(richTextView: EditText, markup: Markup, from: Int, to: Int, flags: Int) {
 //        if (!enableContinuousEditing || to > from)
@@ -130,11 +167,7 @@ fun applyInRange(richTextView: EditText, markup: Markup, from: Int, to: Int, fla
 }
 
 /**
- * Applies the given markup in the given range.
- *
- * @param markup markup to apply
- * @param from inclusive
- * @param to exclusive
+ * Applies the given markup to the text view in given range [from, to).
  */
 fun applyInRange(richTextView: EditText, markup: Markup, from: Int, to: Int, enableContinuousEditing: Boolean) {
     applyInRange(richTextView, markup, from, to, getSpanFlag(from, to, enableContinuousEditing))
@@ -145,10 +178,16 @@ fun getSpanFlag(from: Int, to: Int, enableContinuousEditing: Boolean): Int {
     return if (from == to) Spanned.SPAN_MARK_MARK else Spanned.SPAN_EXCLUSIVE_INCLUSIVE
 }
 
+/**
+ * Removes all markups of given markup type in the text view's current selection.
+ */
 fun removeInSelection(richTextView: EditText, markupType: Class<out Markup>, enableContinuousEditing: Boolean) {
     removeInRange(richTextView, markupType, richTextView.selectionStart, richTextView.selectionEnd, enableContinuousEditing)
 }
 
+/**
+ * Removes all markups of given markup type from the text view in given range [from, to).
+ */
 fun removeInRange(richTextView: EditText, markupType: Class<out Markup>, from: Int, to: Int, enableContinuousEditing: Boolean) {
     getAppliedMarkupsInRange(richTextView, from, to).forEach {
         if (it.javaClass == markupType)
@@ -157,7 +196,7 @@ fun removeInRange(richTextView: EditText, markupType: Class<out Markup>, from: I
 }
 
 /**
- * Removes all the markups from the given range or current selection if no range is given.
+ * Removes all the markups from the text view in given range [from, to).
  *
  * @param from inclusive
  * @param to exclusive
@@ -197,26 +236,40 @@ fun removeInternal(richTextView: EditText, markup: Markup?, from: Int, to: Int, 
             if (markup.isSplittable) {
 
                 var reused = false
-                if (start < from) {
+                var toggled = false
+                val selectionIsZero = from == to
+                val alreadyThere = to <= end
 
-                    val selectionIsZero = from == to
-                    val alreadyThere = to <= end
-                    // The removed markup is reused in if and else.
-                    if (selectionIsZero && alreadyThere) // If the selection is zero then "toggle" the flags.
-                        applyInRange(richTextView, markup, start, from, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    else
-                        applyInRange(richTextView, markup, start, from, enableContinuousEditing)
+                if (start < from) {
+                    val flags: Int
+                    if (selectionIsZero && alreadyThere) {
+                        if (to == end)
+                            flags = toggleEnd(oldFlag)
+                        else
+                            flags = if (isStartInclusive(oldFlag)) Spanned.SPAN_INCLUSIVE_EXCLUSIVE else Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        toggled = true // store we toggled the start or not to decide whether to toggle the end or not.
+                    } else
+                        flags = getSpanFlag(start, from, enableContinuousEditing)
+
+                    // The removed markup is reused here.
+                    applyInRange(richTextView, markup, start, from, flags)
                     reused = true
                 }
-                if (end > to)
-                // If not reused above reuse here.
-                    applyInRange(
-                            richTextView,
-                            if (reused) createMarkup(markup.javaClass, (markup as? AttributedMarkup<*>)?.attributes)
-                            else markup,
-                            to, end,
-                            enableContinuousEditing
-                    )
+
+                if (end > to) {
+                    val flags: Int
+                    if (!toggled && selectionIsZero && alreadyThere) {
+                        if (start == from)
+                            flags = toggleStart(oldFlag)
+                        else
+                            flags = if (isEndInclusive(oldFlag)) Spanned.SPAN_INCLUSIVE_INCLUSIVE else Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                    } else
+                        flags = getSpanFlag(to, end, enableContinuousEditing)
+
+                    // If not reused above reuse here.
+                    val anotherMarkup = if (reused) createMarkup(markup.javaClass, (markup as? AttributedMarkup<*>)?.attributes) else markup
+                    applyInRange(richTextView, anotherMarkup, to, end, flags)
+                }
             }
         }
     }
@@ -262,4 +315,34 @@ fun onParagraphMarkupMenuClicked(richTextView: EditText, markupType: Class<out M
             if (st == 0) 0 else st + 1,
             if (en == text.length) text.length else en + 1,
             enableContinuousEditing)
+}
+
+fun isStartExclusive(flags: Int) = (flags == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE || flags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+
+fun isStartInclusive(flags: Int) = (flags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE || flags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+
+fun isEndExclusive(flags: Int) = (flags == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE || flags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+
+fun isEndInclusive(flags: Int) = (flags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE || flags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+
+fun toggleStart(flags: Int) : Int {
+    if (isStartExclusive(flags)) {
+        if (isEndExclusive(flags)) return Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+        else if (isEndInclusive(flags)) return Spanned.SPAN_INCLUSIVE_INCLUSIVE
+    } else if (isStartInclusive(flags)) {
+        if (isEndExclusive(flags)) return Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        else if (isEndInclusive(flags)) return Spanned.SPAN_EXCLUSIVE_INCLUSIVE
+    }
+    return flags
+}
+
+fun toggleEnd(flags: Int) : Int {
+    if (isEndExclusive(flags)) {
+        if (isStartExclusive(flags)) return Spanned.SPAN_EXCLUSIVE_INCLUSIVE
+        else if (isStartInclusive(flags)) return Spanned.SPAN_INCLUSIVE_INCLUSIVE
+    } else if (isEndInclusive(flags)) {
+        if (isStartExclusive(flags)) return Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        else if (isStartInclusive(flags)) return Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+    }
+    return flags
 }

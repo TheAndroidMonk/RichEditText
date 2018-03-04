@@ -18,23 +18,49 @@ package com.gworks.richedittext
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
 import android.view.WindowManager
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.gworks.richedittext.widget.RichEditText
 import com.gworks.richedittext.widget.RichEditTextBuilder
-
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var tv: TextView
+
+    private lateinit var richText: RichEditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-        val richText = RichEditTextBuilder(this)
+        richText = RichEditTextBuilder(this)
                 .withBold()
                 .withItalics()
                 .withStrikeThrough()
                 .withHyperLink()
-                .withUnderline().build()
-        setContentView(richText)
+                .withUnderline()
+                .build()
+        richText.setHtml("Some sample text")
+        val ll = LinearLayout(this)
+        ll.orientation = LinearLayout.VERTICAL
+        tv = TextView(this)
+        ll.addView(tv)
+        ll.addView(richText)
+        setContentView(ll)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menu?.add(0, 101, 0, "VIEW")?.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if(item?.itemId == 101) {
+            tv.text = richText.getHtml()
+        }
+        return true
     }
 }
