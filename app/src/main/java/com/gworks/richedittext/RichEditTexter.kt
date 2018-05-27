@@ -29,7 +29,6 @@ class RichEditTexter(override val richTextView: EditText,
     init {
         richTextView.addTextChangedListener(MyWatcher(this))
         richTextView.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-
     }
 
     override fun setHtml(html: String, markupFactory: (String) -> Class<out Markup>?, unknownTagHandler: UnknownTagHandler?) {
@@ -129,9 +128,7 @@ class RichEditTexter(override val richTextView: EditText,
             private var before = -1
             private var after = -1
 
-            private var newLineRemoved = false
-            private var newLineAdded = false
-            private var lastNewLineRemoved = false
+            private var newLineAffected = false
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
 
@@ -149,14 +146,12 @@ class RichEditTexter(override val richTextView: EditText,
                 }
 
                 // Removing one or more newline from the text
-                val index = s.lastIndexOf('\n', start, start + count)
-                newLineRemoved = index in start..start + count
-                lastNewLineRemoved = index == start + count - 1
+                newLineAffected = s.indexOf('\n', start, start + count) in start..start + count
             }
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 // Adding one or more newline to the text
-                newLineAdded = s.indexOf('\n', start, start + count) in start..start + count
+                newLineAffected = s.indexOf('\n', start, start + count) in start..start + count
             }
 
             override fun afterTextChanged(s: Editable) {
@@ -165,7 +160,7 @@ class RichEditTexter(override val richTextView: EditText,
 
                     val spans = s.getSpans(start, start + 1, Markup::class.java)
                     for (it in spans) {
-                        if (it is List<*> && (newLineRemoved || newLineAdded))
+                        if (it is List<*> && newLineAffected)
                             it.reApply(s, s.getSpanStart(it), s.getSpanEnd(it))
                         if (operation != DELETE && s.getSpanStart(it) == start && s.getSpanEnd(it) == start) {
                             it.removeInternal(s)
@@ -181,9 +176,6 @@ class RichEditTexter(override val richTextView: EditText,
                     // beforeTextChanged() this prevents the infinite loop.
                     operation = NONE
                 }
-
-                //newLineAdded = false
-                //newLineRemoved = false
             }
         }
 
