@@ -11,8 +11,21 @@ fun updateSpanFlags(text: Spannable, span: Any?, flags: Int) {
     text.setSpan(span, text.getSpanStart(span), text.getSpanEnd(span), flags)
 }
 
+/**
+ * Returns the first index of given char if it is present in the range [start, limit).
+ * Returns the limit if not present in the range.
+ */
 fun CharSequence.indexOf(char: Char, start: Int = 0, limit: Int = this.length, ignoreCase: Boolean = false): Int {
     val result = indexOf(char, start, ignoreCase)
+    return if (result >= 0) minOf(result, limit) else limit
+}
+
+/**
+ * Returns the last index of given char if it is present in the range [start, limit).
+ * Returns the limit if not present in the range.
+ */
+fun CharSequence.lastIndexOf(char: Char, start: Int = 0, limit: Int = this.length, ignoreCase: Boolean = false): Int {
+    val result = lastIndexOf(char, start, ignoreCase)
     return if (result >= 0) minOf(result, limit) else limit
 }
 

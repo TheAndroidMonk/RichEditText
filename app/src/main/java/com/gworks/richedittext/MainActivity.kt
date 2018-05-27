@@ -42,8 +42,10 @@ class MainActivity : AppCompatActivity() {
                 .withStrikeThrough()
                 .withHyperLink()
                 .withUnderline()
+                .withUnorderedList()
+                .withOrderedList()
                 .build()
-        richText.setHtml("Some sample text")
+        richText.setPlainText("Some\nsample\ntext")
         val ll = LinearLayout(this)
         ll.orientation = LinearLayout.VERTICAL
         tv = TextView(this)

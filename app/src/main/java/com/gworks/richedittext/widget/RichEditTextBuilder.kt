@@ -52,6 +52,24 @@ class RichEditTextBuilder(private val context: Context) {
         return this
     }
 
+    fun withUnorderedList(): RichEditTextBuilder{
+
+        rEdiText.addMarkupView(
+                createImageButton(R.drawable.ic_format_list_bulleted_black_18dp,
+                        View.OnClickListener { rEdiText.onParagraphMarkupClicked(UList::class.java, UList.Attributes(50))})
+        )
+        return this
+    }
+
+    fun withOrderedList(): RichEditTextBuilder{
+
+        rEdiText.addMarkupView(
+                createImageButton(R.drawable.ic_format_list_numbered_black_18dp,
+                        View.OnClickListener { rEdiText.onParagraphMarkupClicked(OList::class.java, OList.Attributes(50))})
+        )
+        return this
+    }
+
     fun withSubscript(): RichEditTextBuilder {
         rEdiText.addMarkupView(
                 createImageButton(R.mipmap.ic_launcher,

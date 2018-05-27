@@ -52,6 +52,14 @@ class RichEditText : RelativeLayout {
         rtManager.setHtml(html)
     }
 
+    fun setPlainText(text: String) {
+        rtManager.setPlainText(text)
+    }
+
+    fun getPlainText():String {
+        return rtManager.getPlainText()
+    }
+
     fun addMarkupView(view: View) {
         linearLayout.addView(view)
     }
