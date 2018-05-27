@@ -25,6 +25,8 @@ Currently supported markups are
   9. Paragraph (alignment, top spacing, bottom spacing)
   10. Superscript
   11. Subscript
+  12. Code
+  13. Code Block
   
 **Note**
 
@@ -33,15 +35,15 @@ _There is no exact analogy between the markups of this framework and html tags. 
 **Current Limitations**
 
   * No support for full justification in Paragraph markup.
-  * Ordered and Unordered lists do _not_ automatically add list items when a new-line is entered at the end of the list.
+  * Will misbehave when aready styed text is altered using autocompete dictionary suggestions. Either disable the dictionary suggestion or apply styles on competed text.
   
 ## Extension
 
 This framework can be extended to support new markups (which are achievable using Android's spans) with minimal effort. To do so
 
-  1. Create a class extending `Markup` (or one of its subclasses) and override the abstract methods.
-  2. Add a markup menu for the newly created markup.
-  3. On its click call `RichEditText.onMarkupMenuClicked()` by passing necessary params and the framework will take care of rest.
+  1. create a class extending `Markup` (or one of its subclasses) and override the abstract methods,
+  2. add a markup menu for the newly created markup,
+  3. on its click call `RichEditText.onMarkupMenuClicked()` by passing necessary params and the framework will take care of rest.
   
 If you want the new markup to participate in html format conversion then do the following.
 
