@@ -145,7 +145,7 @@ class RichEditTexter(override val richTextView: EditText,
                     else -> REPLACE
                 }
 
-                // Removing one or more newline from the text
+                // Removing one or more newline from the text sdf
                 newLineAffected = s.indexOf('\n', start, start + count) in start..start + count
             }
 
